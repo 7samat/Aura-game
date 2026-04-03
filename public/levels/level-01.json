@@ -1,0 +1,94 @@
+{
+  "version": 1,
+  "meta": {
+    "id": "level-01",
+    "name": "First Light",
+    "difficulty": 1,
+    "estimatedSeconds": 210,
+    "tags": ["introduces-red", "introduces-blue", "onboarding"],
+    "sparkThresholds": { "half": 0.6, "full": 1.0 }
+  },
+  "levelWidth": 3200,
+  "background": {
+    "theme": "cyberpunk",
+    "starCount": 80,
+    "seed": 42
+  },
+  "playerSpawn": { "x": 80, "y": 370 },
+  "endZone": { "x": 3100, "y": 394 },
+
+  "platforms": [
+    { "x": 300, "y": 370, "w": 120, "h": 16 },
+    { "x": 480, "y": 350, "w": 80,  "h": 16 },
+
+    { "x": 700, "y": 340, "w": 120, "h": 16 },
+    { "x": 860, "y": 280, "w": 120, "h": 16 },
+
+    { "x": 1200, "y": 340, "w": 140, "h": 16 },
+    { "x": 1360, "y": 260, "w": 120, "h": 16 },
+
+    { "x": 1700, "y": 340, "w": 120, "h": 16 },
+    { "x": 1840, "y": 270, "w": 140, "h": 16 },
+
+    { "x": 2020, "y": 350, "w": 120, "h": 16 },
+
+    { "x": 2300, "y": 300, "w": 100, "h": 16 },
+    { "x": 2400, "y": 230, "w": 100, "h": 16 },
+    { "x": 2500, "y": 160, "w": 100, "h": 16 },
+
+    { "x": 2700, "y": 350, "w": 120, "h": 16 },
+    { "x": 2820, "y": 280, "w": 120, "h": 16 },
+    { "x": 2960, "y": 350, "w": 120, "h": 16 }
+  ],
+
+  "colorZones": [
+    { "x": 400, "y": 380, "w": 100, "h": 70, "color": "red" },
+    { "x": 1500, "y": 380, "w": 100, "h": 70, "color": "blue" },
+    { "x": 2600, "y": 380, "w": 100, "h": 70, "color": "red" }
+  ],
+
+  "auraGates": [
+    { "x": 1650, "y": 394, "w": 28, "h": 56, "color": "blue" }
+  ],
+
+  "enemies": [
+    { "x": 1050, "y": 398, "patrolRange": 80 },
+    { "x": 1900, "y": 398, "patrolRange": 80 },
+    { "x": 2550, "y": 398, "patrolRange": 100 }
+  ],
+
+  "npcs": [
+    {
+      "x": 160, "y": 370,
+      "role": "onboarding",
+      "demo": {
+        "targetX": 400, "color": "red", "gateX": 520, "delay": 3000
+      }
+    }
+  ],
+
+  "collectibles": [
+    { "id": "L1-S01", "x": 160,  "y": 390, "type": "spark", "color": "red" },
+    { "id": "L1-S02", "x": 240,  "y": 390, "type": "spark", "color": "red" },
+    { "id": "L1-S03", "x": 320,  "y": 380, "type": "spark", "color": "red" },
+    { "id": "L1-S04", "x": 500,  "y": 340, "type": "spark", "color": "red" },
+    { "id": "L1-S05", "x": 620,  "y": 400, "type": "spark", "color": "red" },
+    { "id": "L1-S06", "x": 700,  "y": 316, "type": "spark", "color": "red" },
+    { "id": "L1-S07", "x": 860,  "y": 256, "type": "spark", "color": "red" },
+    { "id": "L1-S08", "x": 960,  "y": 400, "type": "spark", "color": "blue" },
+    { "id": "L1-S09", "x": 1100, "y": 400, "type": "spark", "color": "blue" },
+    { "id": "L1-S10", "x": 1200, "y": 316, "type": "spark", "color": "blue" },
+    { "id": "L1-S11", "x": 1360, "y": 236, "type": "spark", "color": "blue" },
+    { "id": "L1-S12", "x": 1500, "y": 370, "type": "spark", "color": "blue" },
+    { "id": "L1-S13", "x": 1700, "y": 316, "type": "spark", "color": "blue" },
+    { "id": "L1-S14", "x": 1840, "y": 246, "type": "spark", "color": "blue" },
+    { "id": "L1-S15", "x": 2020, "y": 326, "type": "spark", "color": "red" },
+    { "id": "L1-S16", "x": 2200, "y": 400, "type": "spark", "color": "red" },
+    { "id": "L1-S17", "x": 2300, "y": 276, "type": "spark", "color": "red" },
+    { "id": "L1-S18", "x": 2700, "y": 326, "type": "spark", "color": "blue" },
+
+    { "id": "L1-W01", "x": 890,  "y": 220, "type": "spark", "hidden": true },
+    { "id": "L1-W02", "x": 2500, "y": 136, "type": "spark", "hidden": true },
+    { "id": "L1-W03", "x": 2820, "y": 256, "type": "spark", "hidden": true }
+  ]
+}

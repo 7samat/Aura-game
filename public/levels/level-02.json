@@ -1,0 +1,91 @@
+{
+  "version": 1,
+  "meta": {
+    "id": "level-02",
+    "name": "Signal",
+    "difficulty": 2,
+    "estimatedSeconds": 270,
+    "unlockAfter": "level-01",
+    "tags": ["introduces-yellow", "introduces-echo-platforms"],
+    "sparkThresholds": { "half": 0.6, "full": 1.0 }
+  },
+  "levelWidth": 3840,
+  "background": {
+    "theme": "cyberpunk",
+    "starCount": 90,
+    "seed": 137
+  },
+  "playerSpawn": { "x": 80, "y": 370 },
+  "endZone": { "x": 3750, "y": 394 },
+
+  "platforms": [
+    { "x": 300, "y": 370, "w": 120, "h": 16 },
+    { "x": 500, "y": 340, "w": 100, "h": 16 },
+
+    { "x": 780, "y": 350, "w": 120, "h": 16 },
+    { "x": 920, "y": 280, "w": 120, "h": 16 },
+
+    { "x": 1240, "y": 340, "w": 100, "h": 16 },
+    { "x": 1380, "y": 270, "w": 100, "h": 16, "echoColor": "blue" },
+
+    { "x": 1700, "y": 340, "w": 120, "h": 16 },
+    { "x": 1860, "y": 270, "w": 120, "h": 16, "echoColor": "blue" },
+
+    { "x": 2060, "y": 360, "w": 100, "h": 16 },
+    { "x": 2200, "y": 330, "w": 120, "h": 16 },
+
+    { "x": 2380, "y": 320, "w": 120, "h": 16 },
+    { "x": 2520, "y": 240, "w": 120, "h": 16, "echoColor": "red" },
+
+    { "x": 2860, "y": 340, "w": 120, "h": 16 },
+    { "x": 3000, "y": 260, "w": 120, "h": 16 },
+    { "x": 3140, "y": 180, "w": 120, "h": 16 },
+
+    { "x": 3280, "y": 350, "w": 120, "h": 16 },
+    { "x": 3440, "y": 280, "w": 120, "h": 16, "echoColor": "yellow" },
+
+    { "x": 3600, "y": 350, "w": 120, "h": 16 }
+  ],
+
+  "colorZones": [
+    { "x": 360, "y": 380, "w": 100, "h": 70, "color": "red" },
+    { "x": 1160, "y": 380, "w": 100, "h": 70, "color": "blue" },
+    { "x": 2340, "y": 380, "w": 100, "h": 70, "color": "yellow" }
+  ],
+
+  "auraGates": [
+    { "x": 2080, "y": 394, "w": 28, "h": 56, "color": "red" }
+  ],
+
+  "enemies": [
+    { "x": 1100, "y": 398, "patrolRange": 80 },
+    { "x": 1720, "y": 398, "patrolRange": 90 },
+    { "x": 2640, "y": 398, "patrolRange": 100 },
+    { "x": 3400, "y": 398, "patrolRange": 80 }
+  ],
+
+  "collectibles": [
+    { "id": "L2-S01", "x": 160,  "y": 400, "type": "spark", "color": "red" },
+    { "id": "L2-S02", "x": 260,  "y": 400, "type": "spark", "color": "red" },
+    { "id": "L2-S03", "x": 460,  "y": 400, "type": "spark", "color": "red" },
+    { "id": "L2-S04", "x": 560,  "y": 400, "type": "spark", "color": "red" },
+    { "id": "L2-S05", "x": 780,  "y": 326, "type": "spark", "color": "red" },
+    { "id": "L2-S06", "x": 920,  "y": 256, "type": "spark", "color": "red" },
+    { "id": "L2-S07", "x": 1060, "y": 400, "type": "spark", "color": "blue" },
+    { "id": "L2-S08", "x": 1240, "y": 316, "type": "spark", "color": "blue" },
+    { "id": "L2-S09", "x": 1380, "y": 246, "type": "spark", "color": "blue" },
+    { "id": "L2-S10", "x": 1500, "y": 400, "type": "spark", "color": "blue" },
+    { "id": "L2-S11", "x": 1700, "y": 316, "type": "spark", "color": "blue" },
+    { "id": "L2-S12", "x": 1860, "y": 246, "type": "spark", "color": "blue" },
+    { "id": "L2-S13", "x": 2200, "y": 400, "type": "spark", "color": "yellow" },
+    { "id": "L2-S14", "x": 2340, "y": 370, "type": "spark", "color": "yellow" },
+    { "id": "L2-S15", "x": 2500, "y": 400, "type": "spark", "color": "yellow" },
+    { "id": "L2-S16", "x": 2700, "y": 400, "type": "spark", "color": "yellow" },
+    { "id": "L2-S17", "x": 2860, "y": 316, "type": "spark", "color": "yellow" },
+    { "id": "L2-S18", "x": 3600, "y": 326, "type": "spark", "color": "red" },
+
+    { "id": "L2-W01", "x": 920,  "y": 254, "type": "spark", "hidden": true },
+    { "id": "L2-W02", "x": 3140, "y": 156, "type": "spark", "hidden": true },
+    { "id": "L2-W03", "x": 3440, "y": 256, "type": "spark", "hidden": true }
+  ]
+}

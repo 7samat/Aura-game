@@ -1,0 +1,105 @@
+{
+  "version": 1,
+  "meta": {
+    "id": "level-03",
+    "name": "Frequency",
+    "difficulty": 3,
+    "estimatedSeconds": 300,
+    "unlockAfter": "level-02",
+    "tags": ["all-colors", "multiple-echo-platforms", "first-challenge"],
+    "sparkThresholds": { "half": 0.6, "full": 1.0 }
+  },
+  "levelWidth": 4800,
+  "background": {
+    "theme": "cyberpunk",
+    "starCount": 100,
+    "seed": 256,
+    "gradientTop": "#080828",
+    "gradientBottom": "#181848"
+  },
+  "playerSpawn": { "x": 80, "y": 370 },
+  "endZone": { "x": 4700, "y": 394 },
+
+  "platforms": [
+    { "x": 300, "y": 370, "w": 120, "h": 16 },
+    { "x": 500, "y": 340, "w": 100, "h": 16 },
+
+    { "x": 680, "y": 350, "w": 100, "h": 16 },
+    { "x": 820, "y": 280, "w": 100, "h": 16, "echoColor": "blue" },
+    { "x": 960, "y": 210, "w": 100, "h": 16, "echoColor": "blue" },
+
+    { "x": 1180, "y": 340, "w": 120, "h": 16 },
+    { "x": 1340, "y": 260, "w": 120, "h": 16, "echoColor": "red" },
+
+    { "x": 1540, "y": 370, "w": 100, "h": 16 },
+    { "x": 1680, "y": 300, "w": 100, "h": 16, "echoColor": "yellow" },
+
+    { "x": 2020, "y": 340, "w": 120, "h": 16 },
+    { "x": 2180, "y": 260, "w": 120, "h": 16, "echoColor": "blue" },
+    { "x": 2340, "y": 180, "w": 120, "h": 16, "echoColor": "blue" },
+
+    { "x": 2480, "y": 350, "w": 120, "h": 16 },
+    { "x": 2620, "y": 270, "w": 120, "h": 16, "echoColor": "red" },
+
+    { "x": 2940, "y": 340, "w": 120, "h": 16 },
+    { "x": 3100, "y": 260, "w": 120, "h": 16, "echoColor": "yellow" },
+    { "x": 3260, "y": 180, "w": 120, "h": 16, "echoColor": "yellow" },
+
+    { "x": 3380, "y": 350, "w": 120, "h": 16 },
+    { "x": 3520, "y": 270, "w": 120, "h": 16, "echoColor": "red" },
+
+    { "x": 3880, "y": 330, "w": 120, "h": 16 },
+    { "x": 4040, "y": 250, "w": 120, "h": 16, "echoColor": "blue" },
+    { "x": 4200, "y": 170, "w": 120, "h": 16, "echoColor": "blue" },
+
+    { "x": 4300, "y": 350, "w": 120, "h": 16 },
+    { "x": 4440, "y": 270, "w": 120, "h": 16, "echoColor": "yellow" },
+
+    { "x": 4600, "y": 350, "w": 120, "h": 16 }
+  ],
+
+  "colorZones": [
+    { "x": 340, "y": 380, "w": 100, "h": 70, "color": "blue" },
+    { "x": 1420, "y": 380, "w": 100, "h": 70, "color": "red" },
+    { "x": 2660, "y": 380, "w": 100, "h": 70, "color": "yellow" },
+    { "x": 3700, "y": 380, "w": 100, "h": 70, "color": "blue" }
+  ],
+
+  "auraGates": [
+    { "x": 1820, "y": 394, "w": 28, "h": 56, "color": "yellow" },
+    { "x": 3680, "y": 394, "w": 28, "h": 56, "color": "red" }
+  ],
+
+  "enemies": [
+    { "x": 1060, "y": 398, "patrolRange": 80 },
+    { "x": 1760, "y": 398, "patrolRange": 90 },
+    { "x": 2500, "y": 398, "patrolRange": 100 },
+    { "x": 3200, "y": 398, "patrolRange": 80 },
+    { "x": 4140, "y": 398, "patrolRange": 80 }
+  ],
+
+  "collectibles": [
+    { "id": "L3-S01", "x": 160,  "y": 400, "type": "spark", "color": "blue" },
+    { "id": "L3-S02", "x": 260,  "y": 400, "type": "spark", "color": "blue" },
+    { "id": "L3-S03", "x": 500,  "y": 316, "type": "spark", "color": "blue" },
+    { "id": "L3-S04", "x": 680,  "y": 326, "type": "spark", "color": "blue" },
+    { "id": "L3-S05", "x": 820,  "y": 256, "type": "spark", "color": "blue" },
+    { "id": "L3-S06", "x": 960,  "y": 186, "type": "spark", "color": "blue" },
+    { "id": "L3-S07", "x": 1180, "y": 316, "type": "spark", "color": "red" },
+    { "id": "L3-S08", "x": 1340, "y": 236, "type": "spark", "color": "red" },
+    { "id": "L3-S09", "x": 1500, "y": 400, "type": "spark", "color": "red" },
+    { "id": "L3-S10", "x": 1540, "y": 346, "type": "spark", "color": "red" },
+    { "id": "L3-S11", "x": 1900, "y": 400, "type": "spark", "color": "yellow" },
+    { "id": "L3-S12", "x": 2020, "y": 316, "type": "spark", "color": "yellow" },
+    { "id": "L3-S13", "x": 2180, "y": 236, "type": "spark", "color": "yellow" },
+    { "id": "L3-S14", "x": 2340, "y": 156, "type": "spark", "color": "yellow" },
+    { "id": "L3-S15", "x": 2620, "y": 246, "type": "spark", "color": "red" },
+    { "id": "L3-S16", "x": 2800, "y": 400, "type": "spark", "color": "red" },
+    { "id": "L3-S17", "x": 2940, "y": 316, "type": "spark", "color": "yellow" },
+    { "id": "L3-S18", "x": 4500, "y": 400, "type": "spark", "color": "blue" },
+
+    { "id": "L3-W01", "x": 960,  "y": 184, "type": "spark", "hidden": true },
+    { "id": "L3-W02", "x": 3260, "y": 156, "type": "spark", "hidden": true },
+    { "id": "L3-W03", "x": 4200, "y": 146, "type": "spark", "hidden": true }
+  ]
+}
