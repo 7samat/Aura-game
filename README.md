@@ -4,13 +4,15 @@
 
 *Soul vs. Machine* — warm human characters navigating a cold neon cyberpunk world.
 
+**[Play it now](https://7samat.github.io/Aura-game/)**
+
 ## About
 
-Aura is a browser-based platformer where players absorb colors from the environment to gain abilities and overcome obstacles. Built with Phaser 3, designed for touch-first play on tablets and phones.
+Aura is a browser-based platformer where players absorb colors from the environment to gain abilities and overcome obstacles. Pick your hero (Kai or Nova), and the other becomes your sidekick companion who follows you through each level.
 
 ### Core Mechanic: Aura Absorption
 
-The player absorbs color from energy nodes scattered throughout each level. Each color grants a different power:
+Stand near an energy node and press Action to absorb its color. Each color grants a different power:
 
 | Aura | Ability | Color |
 |------|---------|-------|
@@ -20,17 +22,21 @@ The player absorbs color from energy nodes scattered throughout each level. Each
 
 ### Features
 
-- **3 playable levels** with increasing complexity
-- **Aura absorption** — color-based power-up system
+- **3 playable levels** with ground gaps, pits, elevation changes, and bounce pads
+- **Aura absorption** — color-based power-up system with energy node visuals
+- **Full-height energy wall gates** — force fields requiring a specific aura to pass
 - **Color Echo Platforms** — platforms that only exist when you hold the matching aura
 - **Collectible aura sparks** — color-coded gems with hidden white sparks for mastery
+- **Sidekick companion** — the unchosen character follows you and cheers on pickups
 - **Trophy system** — empty/half/full/sparkling per level
-- **Character selection** — choose between Kai and Nova, the other becomes your sidekick
+- **Character selection** — choose between Kai and Nova
 - **Profile system** — 3 save slots with persistent progress
-- **Touch controls** — 4-button layout optimized for kids' fingers (96px touch targets)
+- **Touch controls** — raw DOM touch events with multi-touch tracking (96px targets)
 - **Keyboard support** — WASD/Arrows + Space + E
+- **Game feel** — screen shake, landing squash/stretch, parallax backgrounds, SFX animations
+- **Terrain variety** — ground segments with gaps, bounce pads, moving platforms
 - **Data-driven levels** — JSON schema for easy level authoring
-- **SFX animations** — pixel art effects for absorption and spark collection
+- **Deployed** — live on GitHub Pages with CI/CD
 
 ## Getting Started
 
@@ -67,7 +73,7 @@ Output goes to `dist/`.
 | E | Absorb aura (when near a color node) |
 
 ### Touch
-4 on-screen buttons: Left, Right, Jump (top-right), Action (bottom-right).
+4 on-screen buttons: Left, Right (bottom-left), Jump (top-right), Action (bottom-right). Uses raw DOM touch events with `Touch.identifier` tracking for reliable multi-touch.
 
 ## Project Structure
 
@@ -76,11 +82,11 @@ src/
   main.ts                  # Phaser game bootstrap
   config.ts                # Game constants, colors, physics
   scenes/                  # 10 Phaser scenes (title, menus, gameplay, UI)
-  entities/                # Player, Enemy, NPC, Collectible
+  entities/                # Player, Enemy, NPC, Collectible, Companion
   systems/                 # AuraSystem, ColorZone, AuraGate, SaveManager
   data/                    # LevelSchema, LevelLoader, LevelValidator,
                            #   BackgroundBuilder, AssetManifest, LevelManifest
-  ui/                      # TouchControls, UIHelper
+  ui/                      # TouchControls (raw DOM), UIHelper
   utils/                   # InputManager
 
 public/
@@ -98,15 +104,14 @@ public/
 
 Levels are JSON files in `public/levels/`. The schema supports:
 
-- **Platforms** — with optional `echoColor` for color echo platforms
-- **Color zones** — absorption nodes placed at specific coordinates
-- **Aura gates** — barriers requiring a specific color to pass
+- **Ground segments** — terrain with gaps, pits, and elevation changes
+- **Platforms** — with optional `echoColor` for echo platforms or `moving` for animated platforms
+- **Bounce pads** — launch the player upward with configurable power
+- **Color zones** — energy absorption nodes
+- **Aura gates** — full-height force field barriers
 - **Enemies** — patrol range and position
 - **Collectibles** — color-coded sparks with optional `hidden` flag
-- **NPCs** — with optional onboarding demo sequences
 - **Background** — theme selection (cyberpunk, forest, cave) with parallax config
-
-See [TECH_SPEC.md](TECH_SPEC.md) for the full schema reference.
 
 To add a new level:
 1. Create `public/levels/level-04.json` following the schema
@@ -121,6 +126,8 @@ To add a new level:
 | Language | TypeScript |
 | Bundler | Vite |
 | Save System | localStorage (3 profile slots) |
+| Touch Input | Raw DOM events (bypasses Phaser input for reliability) |
+| Deployment | GitHub Pages via GitHub Actions |
 | Target | Browser-first, Capacitor-ready for app stores |
 
 ## Asset Credits
@@ -145,7 +152,8 @@ SFX spritesheets from **Super Pixel Effects Gigapack** (Free Version).
 | [TECH_SPEC.md](TECH_SPEC.md) | Technical Specification — system architecture, build plan |
 | [ART_DIRECTION.md](ART_DIRECTION.md) | Art Direction Guide — color palette, visual treatments |
 | [UX_GUIDELINES.md](UX_GUIDELINES.md) | UX Guidelines — child-specific design rules |
-| [SPRINT_PLAN.md](SPRINT_PLAN.md) | Sprint Plan — roadmap, milestones, go/no-go criteria |
+| [SPRINT_PLAN.md](SPRINT_PLAN.md) | Sprint Plan — completed and upcoming sprints |
+| [CLAUDE.md](CLAUDE.md) | AI agent context — architecture, patterns, constraints |
 
 ## License
 

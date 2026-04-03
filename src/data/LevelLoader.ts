@@ -29,6 +29,8 @@ export interface LoadedLevel {
   platforms: Phaser.Physics.Arcade.StaticGroup;
   echoPlatforms: EchoPlatform[];
   endZone: Phaser.GameObjects.Rectangle;
+  bouncePads: Phaser.GameObjects.Rectangle[];
+  killzone: Phaser.GameObjects.Rectangle | null;
   parallaxLayers: ParallaxLayer[];
   levelWidth: number;
   totalSparks: number;
@@ -49,36 +51,37 @@ export function loadLevel(
 
   // ── Ground ──────────────────────────────────────────────
   const platforms = scene.physics.add.staticGroup();
-
-  // Ground — use tiled metal plates if available
   const hasMetalTile = scene.textures.exists('tile-metal-block');
-  if (hasMetalTile) {
-    const tileSize = 32; // scale 64x64 tiles to 32x32
-    for (let gx = 0; gx < levelWidth; gx += tileSize) {
-      const tile = scene.add.image(gx + tileSize / 2, GAME_HEIGHT - tileSize / 2, 'tile-metal-block');
-      tile.setScale(tileSize / 64);
-      tile.setTint(0x6666aa); // tint to sci-fi purple-gray
+  const groundH = 32;
+  const defaultGroundY = GAME_HEIGHT - groundH;
+
+  let killzone: Phaser.GameObjects.Rectangle | null = null;
+
+  if (def.groundSegments && def.groundSegments.length > 0) {
+    // Disable bottom world bounds so player can fall into pits
+    scene.physics.world.setBoundsCollision(true, true, true, false);
+
+    for (const seg of def.groundSegments) {
+      const segY = defaultGroundY + (seg.y ?? 0);
+      createGroundSegment(scene, seg.x, segY, seg.width, groundH, platforms, hasMetalTile);
     }
-    // Neon top edge
-    const groundLine = scene.add.graphics();
-    groundLine.lineStyle(2, 0x4dc8ff, 0.5);
-    groundLine.lineBetween(0, GAME_HEIGHT - 32, levelWidth, GAME_HEIGHT - 32);
+
+    // Killzone below the level — triggers death on fall into pit
+    killzone = scene.add.rectangle(levelWidth / 2, GAME_HEIGHT + 40, levelWidth, 60);
+    killzone.setVisible(false);
+    scene.physics.add.existing(killzone, true);
   } else {
-    // Fallback procedural ground
-    const groundG = scene.add.graphics();
-    groundG.fillStyle(0x1a1a3a, 1);
-    groundG.fillRect(0, GAME_HEIGHT - 32, levelWidth, 32);
-    groundG.lineStyle(2, 0x4dc8ff, 0.4);
-    groundG.lineBetween(0, GAME_HEIGHT - 32, levelWidth, GAME_HEIGHT - 32);
-    groundG.lineStyle(1, 0x2a2a5a, 0.5);
-    for (let x = 0; x < levelWidth; x += 32) {
-      groundG.lineBetween(x, GAME_HEIGHT - 32, x, GAME_HEIGHT);
-    }
+    createGroundSegment(scene, 0, defaultGroundY, levelWidth, groundH, platforms, hasMetalTile);
   }
 
-  const ground = scene.add.rectangle(levelWidth / 2, GAME_HEIGHT - 16, levelWidth, 32);
-  ground.setVisible(false);
-  platforms.add(ground);
+  // ── Bounce Pads ────────────────────────────────────────
+  const bouncePads: Phaser.GameObjects.Rectangle[] = [];
+  if (def.bouncePads) {
+    for (const bp of def.bouncePads) {
+      const pad = createBouncePad(scene, bp.x, bp.y, bp.power ?? -600);
+      bouncePads.push(pad);
+    }
+  }
 
   // ── Platforms ───────────────────────────────────────────
   const echoPlatforms: EchoPlatform[] = [];
@@ -86,6 +89,9 @@ export function loadLevel(
     if (p.echoColor && p.echoColor !== AuraColor.NONE) {
       const echo = createEchoPlatform(scene, p, platforms);
       echoPlatforms.push(echo);
+    } else if (p.moving) {
+      // Moving platform — tween-driven, added to platforms group for collision
+      createMovingPlatform(scene, p, platforms);
     } else {
       createPlatformVisual(scene, p, platforms);
     }
@@ -114,6 +120,11 @@ export function loadLevel(
     auraSystem,
     characterKey,
   );
+
+  // When using ground segments, allow player to fall through bottom (into killzone)
+  if (def.groundSegments && def.groundSegments.length > 0) {
+    player.setCollideWorldBounds(false);
+  }
 
   // ── Enemies ────────────────────────────────────────────
   const enemies = def.enemies.map(e => {
@@ -157,7 +168,7 @@ export function loadLevel(
 
   return {
     player, enemies, npcs, colorZones, auraGates, collectibles,
-    platforms, echoPlatforms, endZone, parallaxLayers, levelWidth, totalSparks, def,
+    platforms, echoPlatforms, endZone, bouncePads, killzone, parallaxLayers, levelWidth, totalSparks, def,
   };
 }
 
@@ -323,4 +334,124 @@ function createEndFlag(scene: Phaser.Scene, x: number, y: number): void {
     yoyo: true,
     repeat: -1,
   });
+}
+
+function createMovingPlatform(scene: Phaser.Scene, p: PlatformDef, platforms: Phaser.Physics.Arcade.StaticGroup): void {
+  // Validate config BEFORE creating any objects
+  const mov = p.moving!;
+  if (!Number.isFinite(mov.speed) || mov.speed <= 0) {
+    console.warn(`Moving platform at (${p.x}, ${p.y}): invalid speed ${mov.speed}, skipping`);
+    return;
+  }
+  if (!Number.isFinite(mov.distance) || mov.distance === 0) {
+    console.warn(`Moving platform at (${p.x}, ${p.y}): invalid distance ${mov.distance}, skipping`);
+    return;
+  }
+  if (mov.axis !== 'x' && mov.axis !== 'y') {
+    console.warn(`Moving platform at (${p.x}, ${p.y}): invalid axis '${mov.axis}', expected 'x' or 'y', skipping`);
+    return;
+  }
+
+  // Visual
+  const g = scene.add.graphics();
+  const left = p.x - p.w / 2;
+  const top = p.y - p.h / 2;
+  g.fillStyle(0x2a2a6a, 1);
+  g.fillRect(left, top, p.w, p.h);
+  g.lineStyle(2, 0xffd94d, 0.6);
+  g.lineBetween(left, top, left + p.w, top);
+  g.lineStyle(1, 0xffd94d, 0.2);
+  g.lineBetween(left, top + p.h, left + p.w, top + p.h);
+
+  // Physics body — added to platforms group for collision
+  // NOTE: Static bodies won't carry riders. For vertical platforms this is acceptable
+  // (player lands as platform moves up). For horizontal, player may slide off — acceptable
+  // for kids platformer difficulty level.
+  const plat = scene.add.rectangle(p.x, p.y, p.w, p.h);
+  plat.setVisible(false);
+  platforms.add(plat);
+
+  const prop = mov.axis;
+  const duration = (Math.abs(mov.distance) * 2 / mov.speed) * 1000;
+
+  scene.tweens.add({
+    targets: [g, plat],
+    [prop]: `+=${mov.distance}`,
+    duration: duration / 2,
+    yoyo: true,
+    repeat: -1,
+    ease: 'Sine.easeInOut',
+    onUpdate: () => {
+      const body = plat.body as Phaser.Physics.Arcade.StaticBody;
+      body.updateFromGameObject();
+    },
+  });
+}
+
+function createGroundSegment(
+  scene: Phaser.Scene,
+  x: number,
+  y: number,
+  width: number,
+  height: number,
+  platforms: Phaser.Physics.Arcade.StaticGroup,
+  hasMetalTile: boolean,
+): void {
+  if (hasMetalTile) {
+    const tileSize = 32;
+    for (let gx = x; gx < x + width; gx += tileSize) {
+      const tile = scene.add.image(gx + tileSize / 2, y + height / 2, 'tile-metal-block');
+      tile.setScale(tileSize / 64);
+      tile.setTint(0x6666aa);
+    }
+    const edgeLine = scene.add.graphics();
+    edgeLine.lineStyle(2, 0x4dc8ff, 0.5);
+    edgeLine.lineBetween(x, y, x + width, y);
+  } else {
+    const g = scene.add.graphics();
+    g.fillStyle(0x1a1a3a, 1);
+    g.fillRect(x, y, width, height);
+    g.lineStyle(2, 0x4dc8ff, 0.4);
+    g.lineBetween(x, y, x + width, y);
+  }
+
+  const body = scene.add.rectangle(x + width / 2, y + height / 2, width, height);
+  body.setVisible(false);
+  platforms.add(body);
+}
+
+function createBouncePad(
+  scene: Phaser.Scene,
+  x: number,
+  y: number,
+  power: number,
+): Phaser.GameObjects.Rectangle {
+  // Visual — a small glowing pad
+  const padW = 40;
+  const padH = 8;
+  const g = scene.add.graphics();
+  g.fillStyle(0xffd94d, 0.8);
+  g.fillRect(x - padW / 2, y - padH / 2, padW, padH);
+  g.lineStyle(2, 0xffffff, 0.5);
+  g.lineBetween(x - padW / 2, y - padH / 2, x + padW / 2, y - padH / 2);
+
+  // Glow
+  const glow = scene.add.rectangle(x, y, padW + 8, padH + 8, 0xffd94d, 0.15);
+  scene.tweens.add({
+    targets: glow,
+    alpha: { from: 0.1, to: 0.25 },
+    scaleY: { from: 1, to: 1.5 },
+    duration: 600,
+    yoyo: true,
+    repeat: -1,
+    ease: 'Sine.easeInOut',
+  });
+
+  // Physics body
+  const pad = scene.add.rectangle(x, y, padW, padH);
+  pad.setVisible(false);
+  scene.physics.add.existing(pad, true);
+  pad.setData('bouncePower', power);
+
+  return pad;
 }

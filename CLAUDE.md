@@ -105,7 +105,7 @@ Key texture keys:
 
 **UIHelper** (`src/ui/UIHelper.ts`): Shared helpers — `createButton()`, `createBackButton()`, `createPanel()`. Uses Kenney UI Pack sprites with fallback to plain rectangles.
 
-**TouchControls** (`src/ui/TouchControls.ts`): 4 buttons (left/right/jump/action). Kenney square buttons with arrow sprites. 96px touch targets. Only shown on touch devices.
+**TouchControls** (`src/ui/TouchControls.ts`): 4 buttons (left/right/jump/action). **Uses raw DOM touch events** — bypasses Phaser's input system entirely for reliability. Tracks touches by `Touch.identifier`, rectangle hit-tests with plain math, handles finger-drag between buttons. Auto-cleans up on scene shutdown. Kenney square button sprites, 96px targets.
 
 **InputManager** (`src/utils/InputManager.ts`): Unified keyboard (WASD/arrows/space/E) + touch state. Single `getState()` returns `{ left, right, jump, action, actionHeld, actionHoldDuration }`.
 
@@ -124,6 +124,10 @@ Key texture keys:
 - **Sprite-based glow**: Player aura glow is an ADD-blended ellipse at depth 9, not a shader. Pulse tween stored and stopped before replacement to prevent accumulation.
 - **Dual-mode assets**: AssetManifest supports `useSpriteSheet: boolean` flag. When false, PreloadScene generates procedural placeholder textures. Allows running without art assets.
 - **Per-profile save isolation**: localStorage keys prefixed per slot (`aura_profile_A/B/C`). All reads wrapped in try/catch for Safari private mode.
+- **Raw DOM touch input**: TouchControls bypasses Phaser's input system entirely. Attaches to canvas via `addEventListener`, tracks by `Touch.identifier`, hit-tests with rectangle math. Cleans up on scene SHUTDOWN event.
+- **Segmented ground terrain**: Ground is an array of `GroundSegmentDef` — gaps between segments are pits. Killzone body below level catches falls.
+- **TileSprite parallax**: Background layers use `Phaser.GameObjects.TileSprite` with `tilePositionX = camX * scrollFactor` updated each frame. City silhouette rendered to generated texture then used as TileSprite.
+- **Bounce pad data**: Power stored via `pad.setData('bouncePower')` / `pad.getData('bouncePower')` — typed Phaser DataManager, not untyped expandos.
 
 ## Design Documents
 

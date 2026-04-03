@@ -1,89 +1,65 @@
 # Aura — Sprint Plan
-**Author:** Jay, Producer | **Date:** 2026-04-02
+**Author:** Jay, Producer | **Last updated:** 2026-04-03
 
 ---
 
-## Sprint 3: Core Loop
-**Duration:** 2 weeks | **Goal:** Validate that collecting + switching auras drives forward momentum
+## Completed Sprints
 
-### In scope
-- Collectible aura sparks (colored only — white sparks deferred to Sprint 4)
+### Sprint 1-2: Foundation (Completed)
+- Project scaffold (Phaser 3 + Vite + TypeScript)
+- Core aura mechanics (absorb, 3 colors, gates, echo platforms)
+- Data-driven level system (JSON schema, loader, validator)
+- Placeholder graphics → Kenney asset integration
+- 1 playable level
+
+### Sprint 3: Core Loop (Completed)
+- Collectible aura sparks (colored gems + hidden white)
 - Yellow aura attract mechanic
 - Color Echo Platforms
-- Level-complete screen (trophy feedback, no persistence yet)
-- 1-2 new levels (JSON, rough layout)
+- Level-complete screen with trophy system
+- HUD spark counter
+- 3 playable levels
 
-### Cut (and why)
-- Character selection → adds decision friction before we know the loop is fun
-- Sidekick → depends on character select; premature
-- Save system → not needed to answer the core question
-- Hidden white sparks → polish item, not core loop
+### Sprint 4: UI & Progression (Completed)
+- Full UI flow: Title → Profile → Character Select → Level Select → Settings
+- Save system (localStorage, 3 profile slots)
+- Character selection (Kai / Nova — works in gameplay)
+- Kenney UI Pack integration (glossy buttons, arrows)
 
-### Acceptance criteria
-- [ ] Player collects sparks, counter visible in HUD
-- [ ] Yellow aura visibly pulls nearby sparks
-- [ ] Color Echo Platforms activate/deactivate based on aura
-- [ ] Level-complete screen shows trophy state
-- [ ] Zero crash bugs on Chrome desktop
-- [ ] ~10 minutes of playable content across 3 levels
+### Sprint 5: Game Feel & Sidekick (Completed)
+- Sidekick companion (follow + cheer)
+- AuraGate redesign — full-height energy walls (can't jump over)
+- ColorZone redesign — energy node beacons with rings, particles, beacon pulse
+- Screen shake on stomp, landing squash/stretch
+- Death/respawn fade-to-white
+- Camera deadzone + look-ahead
+- Character selection → gameplay texture wiring fixed
+- Kenney tile/gem/background/SFX asset integration
+- TileSprite parallax backgrounds
+- CLAUDE.md + Phaser skill references
 
-### Playtest question
-**"Is collecting and switching auras satisfying enough to drive forward momentum on its own?"**
-
----
-
-## Sprint 4: Polish & Content
-**Duration:** 2 weeks | **Goal:** Test sidekick value and visual quality bar
-
-### In scope
-- Character selection (pick 1 of 2)
-- Sidekick companion (follow, point, cheer, revive cushion, rare enemy stomp)
-- Hidden white sparks
-- Color zone visual polish (particles, conduit lines)
-- 3 more levels (total: 5-6)
-
-### Acceptance criteria
-- [ ] Character select screen functional, unchosen character appears as sidekick
-- [ ] Sidekick revive cushion triggers correctly
-- [ ] Sidekick stomp fires at ~30% probability
-- [ ] White sparks hidden but discoverable
-- [ ] Particle/conduit effects at 60fps on mid-range hardware
-- [ ] 5+ levels completable start to finish
-
-### Playtest question
-**"Does the sidekick make kids feel less alone? Does visual polish elevate perceived quality?"**
+### Sprint 6: Controls & Terrain (Completed)
+- Touch controls rewritten with raw DOM events (fixes 30s death, cross-trigger)
+- Ground segments with gaps/pits (replaces flat ground)
+- Bounce pads, moving platforms, elevation changes
+- Killzone for pit death
+- All 3 levels redesigned with terrain variety
+- GitHub Pages deployment + CI/CD
 
 ---
 
-## Sprint 5: Progression & Meta
-**Duration:** 2 weeks | **Goal:** Test retention and ownership
+## Upcoming Sprints
 
-### In scope
-- Save system (localStorage, profile slots A/B/C)
-- Trophy persistence across sessions
-- Level select screen with trophy display
-- Accessibility pass (contrast, font size, button targets)
-- Bug sweep
-
-### Acceptance criteria
-- [ ] Progress persists across browser sessions
-- [ ] Profile slots selectable from main menu
-- [ ] Full 5+ level run completable with no blocker bugs
-- [ ] Accessibility audit passes (WCAG AA for UI components)
-
-### Playtest question
-**"Do kids want to return? Does saving create ownership?"**
+See [SPRINT_PROPOSALS.md](SPRINT_PROPOSALS.md) for the team's proposed scope for Sprints 7-9.
 
 ---
 
 ## GO / NO-GO Decision Point
 
-**End of Sprint 3 playtest.**
+**After Sprint 7 playtest.** The game now has enough mechanics and content for a meaningful kid playtest. Key signals:
 
-If kids aged 6-9 don't self-direct toward spark collection without prompting, the core loop isn't working. Cut losses or pivot before character, sidekick, and content investment compounds.
-
-**Green light signals:**
 - Kids spontaneously collect sparks (not just run past them)
-- At least one kid tries to replay a level for more sparks
-- Kids experiment with aura switching (not just sticking to one color)
-- The attract mechanic gets a visible "whoa" reaction
+- At least one kid tries to replay a level
+- Kids experiment with aura switching
+- Touch controls work reliably for 2+ minutes
+- Sidekick is noticed and appreciated

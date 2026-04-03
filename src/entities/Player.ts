@@ -12,6 +12,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
   private inColorZone: AuraColor = AuraColor.NONE;
   private canJump = true;
   private wasAirborne = false;
+  public isDying = false;
   private actionPrompt: Phaser.GameObjects.Text;
   private hasAnimations: boolean;
   private spriteKey: string;
@@ -203,6 +204,13 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
   }
 
   die(): void {
+    if (this.isDying) return; // prevent stacked death triggers
+    this.isDying = true;
+
+    // Disable physics body to stop further collisions
+    const body = this.body as Phaser.Physics.Arcade.Body;
+    body.enable = false;
+
     this.scene.tweens.add({
       targets: this,
       alpha: 0,
