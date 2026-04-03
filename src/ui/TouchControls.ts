@@ -9,6 +9,7 @@ interface ButtonZone {
   rect: { x: number; y: number; w: number; h: number };
   visual: Phaser.GameObjects.Image | Phaser.GameObjects.Arc;
   icon?: Phaser.GameObjects.Image | Phaser.GameObjects.Text;
+  activeTouchIds: Set<number>; // track all touch IDs pressing this button
 }
 
 /**
@@ -25,10 +26,6 @@ export class TouchControls {
   private buttons: ButtonZone[] = [];
   private activeTouches: Map<number, ButtonName | null> = new Map();
   private isTouchDevice: boolean;
-  private scaleX = 1;
-  private scaleY = 1;
-  private offsetX = 0;
-  private offsetY = 0;
 
   // Bound handlers for cleanup
   private onTouchStart: (e: TouchEvent) => void;
@@ -47,20 +44,12 @@ export class TouchControls {
     this.onTouchEnd = this.handleTouchEnd.bind(this);
 
     if (this.isTouchDevice) {
-      this.computeCanvasScale();
       this.createButtons();
       this.attachListeners();
     }
-  }
 
-  private computeCanvasScale(): void {
-    const rect = this.canvas.getBoundingClientRect();
-    const gameW = this.scene.scale.width;
-    const gameH = this.scene.scale.height;
-    this.scaleX = gameW / rect.width;
-    this.scaleY = gameH / rect.height;
-    this.offsetX = rect.left;
-    this.offsetY = rect.top;
+    // Auto-cleanup on scene shutdown
+    this.scene.events.once(Phaser.Scenes.Events.SHUTDOWN, this.destroy, this);
   }
 
   /** Convert a DOM touch coordinate to game-world coordinate */
@@ -76,7 +65,7 @@ export class TouchControls {
     const { width, height } = this.scene.scale;
     const size = TOUCH_BUTTON_SIZE;
     const pad = TOUCH_BUTTON_PADDING;
-    const bottomY = height - size / 2 - pad - 10; // pushed down a bit more
+    const bottomY = height - size / 2 - pad - 10;
 
     const hasSprites = this.scene.textures.exists('btn-sq-blue');
 
@@ -144,12 +133,12 @@ export class TouchControls {
       }).setOrigin(0.5).setDepth(1001).setScrollFactor(0);
     }
 
-    // NOTE: No setInteractive() — we handle input via raw DOM events
     this.buttons.push({
       name,
       rect: { x: x - size / 2, y: y - size / 2, w: size, h: size },
       visual,
       icon,
+      activeTouchIds: new Set(),
     });
   }
 
@@ -161,7 +150,7 @@ export class TouchControls {
   }
 
   private handleTouchStart(e: TouchEvent): void {
-    e.preventDefault(); // prevent scroll/zoom
+    e.preventDefault();
     for (let i = 0; i < e.changedTouches.length; i++) {
       const touch = e.changedTouches[i];
       const { gx, gy } = this.toGameCoords(touch.clientX, touch.clientY);
@@ -170,6 +159,7 @@ export class TouchControls {
       this.activeTouches.set(touch.identifier, btn?.name ?? null);
 
       if (btn) {
+        btn.activeTouchIds.add(touch.identifier);
         this.inputManager.setTouch(btn.name, true);
         this.setButtonVisual(btn, true);
       }
@@ -184,16 +174,21 @@ export class TouchControls {
       const newBtn = this.hitTest(gx, gy);
       const oldBtnName = this.activeTouches.get(touch.identifier);
 
-      // Finger slid from one button to another (or off a button)
       if (oldBtnName !== (newBtn?.name ?? null)) {
-        // Release old button
+        // Release old button — but only if no other touches are on it
         if (oldBtnName) {
-          this.inputManager.setTouch(oldBtnName, false);
           const oldBtn = this.buttons.find(b => b.name === oldBtnName);
-          if (oldBtn) this.setButtonVisual(oldBtn, false);
+          if (oldBtn) {
+            oldBtn.activeTouchIds.delete(touch.identifier);
+            if (oldBtn.activeTouchIds.size === 0) {
+              this.inputManager.setTouch(oldBtnName, false);
+              this.setButtonVisual(oldBtn, false);
+            }
+          }
         }
         // Press new button
         if (newBtn) {
+          newBtn.activeTouchIds.add(touch.identifier);
           this.inputManager.setTouch(newBtn.name, true);
           this.setButtonVisual(newBtn, true);
         }
@@ -208,9 +203,15 @@ export class TouchControls {
       const btnName = this.activeTouches.get(touch.identifier);
 
       if (btnName) {
-        this.inputManager.setTouch(btnName, false);
         const btn = this.buttons.find(b => b.name === btnName);
-        if (btn) this.setButtonVisual(btn, false);
+        if (btn) {
+          btn.activeTouchIds.delete(touch.identifier);
+          // Only release if no other touches are still on this button
+          if (btn.activeTouchIds.size === 0) {
+            this.inputManager.setTouch(btnName, false);
+            this.setButtonVisual(btn, false);
+          }
+        }
       }
       this.activeTouches.delete(touch.identifier);
     }
@@ -239,10 +240,22 @@ export class TouchControls {
   }
 
   destroy(): void {
+    // Remove DOM listeners
     this.canvas.removeEventListener('touchstart', this.onTouchStart);
     this.canvas.removeEventListener('touchmove', this.onTouchMove);
     this.canvas.removeEventListener('touchend', this.onTouchEnd);
     this.canvas.removeEventListener('touchcancel', this.onTouchEnd);
+
+    // Release any pressed buttons and reset input state
+    for (const btn of this.buttons) {
+      if (btn.activeTouchIds.size > 0) {
+        this.inputManager.setTouch(btn.name, false);
+      }
+      btn.activeTouchIds.clear();
+      btn.visual.destroy();
+      btn.icon?.destroy();
+    }
+    this.buttons.length = 0;
     this.activeTouches.clear();
   }
 }

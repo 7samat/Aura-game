@@ -87,8 +87,8 @@ export function loadLevel(
       const echo = createEchoPlatform(scene, p, platforms);
       echoPlatforms.push(echo);
     } else if (p.moving) {
-      // Moving platform — use dynamic body with tween
-      createMovingPlatform(scene, p);
+      // Moving platform — tween-driven, added to platforms group for collision
+      createMovingPlatform(scene, p, platforms);
     } else {
       createPlatformVisual(scene, p, platforms);
     }
@@ -328,7 +328,7 @@ function createEndFlag(scene: Phaser.Scene, x: number, y: number): void {
   });
 }
 
-function createMovingPlatform(scene: Phaser.Scene, p: PlatformDef): void {
+function createMovingPlatform(scene: Phaser.Scene, p: PlatformDef, platforms: Phaser.Physics.Arcade.StaticGroup): void {
   const g = scene.add.graphics();
   const left = p.x - p.w / 2;
   const top = p.y - p.h / 2;
@@ -339,15 +339,24 @@ function createMovingPlatform(scene: Phaser.Scene, p: PlatformDef): void {
   g.lineStyle(1, 0xffd94d, 0.2);
   g.lineBetween(left, top + p.h, left + p.w, top + p.h);
 
-  // Invisible physics body (static — we move visually and reset body)
+  // Physics body — added to platforms group for collision
   const plat = scene.add.rectangle(p.x, p.y, p.w, p.h);
   plat.setVisible(false);
-  scene.physics.add.existing(plat, true);
+  platforms.add(plat);
 
-  // Tween the graphics + body together
+  // Validate moving config
   const mov = p.moving!;
+  if (!Number.isFinite(mov.speed) || mov.speed <= 0) {
+    console.warn(`Moving platform at (${p.x}, ${p.y}): invalid speed ${mov.speed}`);
+    return;
+  }
+  if (!Number.isFinite(mov.distance) || mov.distance === 0) {
+    console.warn(`Moving platform at (${p.x}, ${p.y}): invalid distance ${mov.distance}`);
+    return;
+  }
+
   const prop = mov.axis === 'x' ? 'x' : 'y';
-  const duration = (mov.distance * 2 / mov.speed) * 1000;
+  const duration = (Math.abs(mov.distance) * 2 / mov.speed) * 1000;
 
   scene.tweens.add({
     targets: [g, plat],
@@ -357,14 +366,10 @@ function createMovingPlatform(scene: Phaser.Scene, p: PlatformDef): void {
     repeat: -1,
     ease: 'Sine.easeInOut',
     onUpdate: () => {
-      // Refresh static body position after tween moves it
       const body = plat.body as Phaser.Physics.Arcade.StaticBody;
       body.updateFromGameObject();
     },
   });
-
-  // Store for collision registration
-  (plat as any)._isMovingPlatform = true;
 }
 
 function createGroundSegment(
@@ -430,7 +435,7 @@ function createBouncePad(
   const pad = scene.add.rectangle(x, y, padW, padH);
   pad.setVisible(false);
   scene.physics.add.existing(pad, true);
-  (pad as any)._bouncePower = power;
+  pad.setData('bouncePower', power);
 
   return pad;
 }

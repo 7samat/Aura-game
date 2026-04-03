@@ -123,23 +123,24 @@ export class GameScene extends Phaser.Scene {
     for (const pad of level.bouncePads) {
       this.physics.add.collider(this.player, pad, () => {
         const playerBody = this.player.body as Phaser.Physics.Arcade.Body;
-        const power = (pad as any)._bouncePower ?? -600;
+        const power = pad.getData('bouncePower') ?? -600;
         playerBody.setVelocityY(power);
         this.cameras.main.shake(80, 0.005);
       });
-      // Companion too
       if (this.companion?.active) {
         this.physics.add.collider(this.companion, pad, () => {
           const body = this.companion.body as Phaser.Physics.Arcade.Body;
-          body.setVelocityY((pad as any)._bouncePower ?? -600);
+          body.setVelocityY(pad.getData('bouncePower') ?? -600);
         });
       }
     }
 
-    // Killzone (pit death)
+    // Killzone (pit death) — guarded against repeated triggers
     if (level.killzone) {
       this.physics.add.overlap(this.player, level.killzone, () => {
-        this.player.die();
+        if (this.player.active) {
+          this.player.die();
+        }
       });
     }
 
