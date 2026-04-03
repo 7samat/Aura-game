@@ -99,28 +99,20 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
       this.scene.time.delayedCall(200, () => { this.canJump = true; });
     }
 
-    // Jump stretch
-    if (input.jump && body.blocked.down && this.canJump) {
-      // Stretch on takeoff
-      this.scene.tweens.add({
-        targets: this,
-        scaleX: this.scaleX * 0.85,
-        scaleY: this.scaleY * 1.15,
-        duration: 80,
-        yoyo: true,
-        ease: 'Power2',
-      });
-    }
+    // Squash/stretch — use absolute base scale to prevent accumulation
+    const baseScale = this.hasAnimations ? 0.4 : 1;
 
     // Landing squash detection
     if (body.blocked.down && this.wasAirborne) {
+      this.setScale(baseScale); // reset first
       this.scene.tweens.add({
         targets: this,
-        scaleX: this.scaleX * 1.2,
-        scaleY: this.scaleY * 0.8,
+        scaleX: baseScale * 1.2,
+        scaleY: baseScale * 0.8,
         duration: 80,
         yoyo: true,
         ease: 'Power2',
+        onComplete: () => this.setScale(baseScale),
       });
     }
     this.wasAirborne = !body.blocked.down;

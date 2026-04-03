@@ -2,12 +2,29 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="mobile-web-app-capable" content="yes" />
   <title>Aura</title>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
-    html, body { width: 100%; height: 100%; overflow: hidden; background: #0a0a1a; }
-    #game { width: 100%; height: 100%; }
+    html, body {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background: #0a0a1a;
+      /* Fill safe area on notched phones */
+      padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+    }
+    #game {
+      width: 100vw;
+      height: 100vh;
+      height: 100dvh; /* dynamic viewport height — accounts for mobile browser chrome */
+      position: fixed;
+      top: 0;
+      left: 0;
+    }
+    canvas { display: block; }
   </style>
 </head>
 <body>
@@ -22,6 +39,11 @@
     document.addEventListener('click', () => {
       const canvas = document.querySelector('canvas');
       if (canvas) canvas.focus();
+
+      // Request fullscreen on mobile tap (if supported)
+      if (document.documentElement.requestFullscreen && !document.fullscreenElement) {
+        document.documentElement.requestFullscreen().catch(() => {});
+      }
     });
   </script>
 </body>

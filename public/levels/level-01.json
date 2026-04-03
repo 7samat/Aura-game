@@ -57,15 +57,7 @@
     { "x": 2550, "y": 398, "patrolRange": 100 }
   ],
 
-  "npcs": [
-    {
-      "x": 160, "y": 370,
-      "role": "onboarding",
-      "demo": {
-        "targetX": 400, "color": "red", "gateX": 520, "delay": 3000
-      }
-    }
-  ],
+  "npcs": [],
 
   "collectibles": [
     { "id": "L1-S01", "x": 160,  "y": 390, "type": "spark", "color": "red" },
