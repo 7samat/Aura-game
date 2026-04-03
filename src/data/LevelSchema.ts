@@ -119,6 +119,20 @@ export interface BackgroundDef {
 
 // ── Root ──────────────────────────────────────────────────────
 
+/** Ground segment — replaces single flat ground. Gaps between segments become pits. */
+export interface GroundSegmentDef {
+  x: number;                  // start x position
+  width: number;              // segment width in pixels
+  y?: number;                 // y offset from default ground level (negative = higher). Default 0.
+}
+
+/** Bounce pad — launches player upward on contact */
+export interface BouncePadDef {
+  x: number;
+  y: number;
+  power?: number;             // jump velocity override, default -600
+}
+
 export interface LevelDef {
   version: 1;                 // schema version — bump on breaking changes
   meta: LevelMeta;
@@ -127,6 +141,10 @@ export interface LevelDef {
   background: BackgroundDef;
   playerSpawn: { x: number; y: number };
   endZone: EndZoneDef;
+
+  // Terrain
+  groundSegments?: GroundSegmentDef[];  // replaces flat ground when present
+  bouncePads?: BouncePadDef[];
 
   // Structural
   platforms: PlatformDef[];
