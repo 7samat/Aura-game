@@ -15,6 +15,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
   private actionPrompt: Phaser.GameObjects.Text;
   private hasAnimations: boolean;
   private spriteKey: string;
+  private baseScale: number;
 
   constructor(scene: Phaser.Scene, x: number, y: number, inputManager: InputManager, auraSystem: AuraSystem, spriteKey: string = 'player') {
     super(scene, x, y, spriteKey);
@@ -28,9 +29,8 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     scene.physics.add.existing(this);
 
     // Scale down the large Kenney sprites (80x110) to fit the game world
-    if (this.hasAnimations) {
-      this.setScale(0.4); // 80x110 → 32x44 effective size
-    }
+    this.baseScale = this.hasAnimations ? 0.4 : 1;
+    this.setScale(this.baseScale);
 
     this.setCollideWorldBounds(true);
     const body = this.body as Phaser.Physics.Arcade.Body;
@@ -99,20 +99,17 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
       this.scene.time.delayedCall(200, () => { this.canJump = true; });
     }
 
-    // Squash/stretch — use absolute base scale to prevent accumulation
-    const baseScale = this.hasAnimations ? 0.4 : 1;
-
-    // Landing squash detection
+    // Landing squash — uses stored baseScale to prevent accumulation
     if (body.blocked.down && this.wasAirborne) {
-      this.setScale(baseScale); // reset first
+      this.setScale(this.baseScale);
       this.scene.tweens.add({
         targets: this,
-        scaleX: baseScale * 1.2,
-        scaleY: baseScale * 0.8,
+        scaleX: this.baseScale * 1.2,
+        scaleY: this.baseScale * 0.8,
         duration: 80,
         yoyo: true,
         ease: 'Power2',
-        onComplete: () => this.setScale(baseScale),
+        onComplete: () => this.setScale(this.baseScale),
       });
     }
     this.wasAirborne = !body.blocked.down;

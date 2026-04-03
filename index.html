@@ -13,16 +13,17 @@
       height: 100%;
       overflow: hidden;
       background: #0a0a1a;
-      /* Fill safe area on notched phones */
-      padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
     }
     #game {
       width: 100vw;
       height: 100vh;
-      height: 100dvh; /* dynamic viewport height — accounts for mobile browser chrome */
+      height: 100dvh;
       position: fixed;
       top: 0;
       left: 0;
+      /* Keep game inside safe area on notched phones */
+      padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+      box-sizing: border-box;
     }
     canvas { display: block; }
   </style>
@@ -36,15 +37,20 @@
       const canvas = document.querySelector('canvas');
       if (canvas) { canvas.focus(); canvas.tabIndex = 0; }
     });
+    // Focus canvas on any click
     document.addEventListener('click', () => {
       const canvas = document.querySelector('canvas');
       if (canvas) canvas.focus();
+    });
 
-      // Request fullscreen on mobile tap (if supported)
-      if (document.documentElement.requestFullscreen && !document.fullscreenElement) {
+    // Request fullscreen once on first mobile tap
+    function tryFullscreen() {
+      if ('ontouchstart' in window && !document.fullscreenElement && document.documentElement.requestFullscreen) {
         document.documentElement.requestFullscreen().catch(() => {});
       }
-    });
+      document.removeEventListener('click', tryFullscreen);
+    }
+    document.addEventListener('click', tryFullscreen);
   </script>
 </body>
 </html>
