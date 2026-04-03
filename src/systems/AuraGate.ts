@@ -1,3 +1,4 @@
+import Phaser from 'phaser';
 import { AuraColor, AURA_HEX, GAME_HEIGHT } from '../config';
 import { AuraSystem } from './AuraSystem';
 

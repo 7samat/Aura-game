@@ -1,3 +1,4 @@
+import Phaser from 'phaser';
 import { GAME_HEIGHT, NPC_DEMO_DELAY, AURA_HEX, AuraColor } from '../config';
 import { SaveManager } from '../systems/SaveManager';
 import { Player } from '../entities/Player';

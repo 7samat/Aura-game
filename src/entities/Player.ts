@@ -1,3 +1,4 @@
+import Phaser from 'phaser';
 import { PLAYER_SPEED, PLAYER_JUMP_VELOCITY, AURA_HEX, AuraColor } from '../config';
 import { InputManager } from '../utils/InputManager';
 import { AuraSystem } from '../systems/AuraSystem';

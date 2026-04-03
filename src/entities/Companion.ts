@@ -1,3 +1,4 @@
+import Phaser from 'phaser';
 import { AuraColor, AURA_HEX } from '../config';
 import { SaveManager } from '../systems/SaveManager';
 

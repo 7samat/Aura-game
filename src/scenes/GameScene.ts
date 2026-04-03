@@ -1,3 +1,4 @@
+import Phaser from 'phaser';
 import { GAME_WIDTH, GAME_HEIGHT, AuraColor, ATTRACT_RADIUS, ATTRACT_SPEED } from '../config';
 import { Player } from '../entities/Player';
 import { Enemy } from '../entities/Enemy';

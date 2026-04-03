@@ -1,3 +1,4 @@
+import Phaser from 'phaser';
 /**
  * Shared UI helpers for creating consistent Kenney-styled buttons across all scenes.
  */

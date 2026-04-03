@@ -1,3 +1,4 @@
+import Phaser from 'phaser';
 import { GAME_WIDTH, GAME_HEIGHT } from '../config';
 import { SaveManager, ProfileSlot } from '../systems/SaveManager';
 import { createBackButton, createPanel } from '../ui/UIHelper';
