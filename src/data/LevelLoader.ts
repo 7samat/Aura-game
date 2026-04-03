@@ -58,13 +58,16 @@ export function loadLevel(
   let killzone: Phaser.GameObjects.Rectangle | null = null;
 
   if (def.groundSegments && def.groundSegments.length > 0) {
+    // Disable bottom world bounds so player can fall into pits
+    scene.physics.world.setBoundsCollision(true, true, true, false);
+
     for (const seg of def.groundSegments) {
       const segY = defaultGroundY + (seg.y ?? 0);
       createGroundSegment(scene, seg.x, segY, seg.width, groundH, platforms, hasMetalTile);
     }
 
     // Killzone below the level — triggers death on fall into pit
-    killzone = scene.add.rectangle(levelWidth / 2, GAME_HEIGHT + 20, levelWidth, 40);
+    killzone = scene.add.rectangle(levelWidth / 2, GAME_HEIGHT + 40, levelWidth, 60);
     killzone.setVisible(false);
     scene.physics.add.existing(killzone, true);
   } else {
@@ -117,6 +120,11 @@ export function loadLevel(
     auraSystem,
     characterKey,
   );
+
+  // When using ground segments, allow player to fall through bottom (into killzone)
+  if (def.groundSegments && def.groundSegments.length > 0) {
+    player.setCollideWorldBounds(false);
+  }
 
   // ── Enemies ────────────────────────────────────────────
   const enemies = def.enemies.map(e => {
@@ -329,6 +337,22 @@ function createEndFlag(scene: Phaser.Scene, x: number, y: number): void {
 }
 
 function createMovingPlatform(scene: Phaser.Scene, p: PlatformDef, platforms: Phaser.Physics.Arcade.StaticGroup): void {
+  // Validate config BEFORE creating any objects
+  const mov = p.moving!;
+  if (!Number.isFinite(mov.speed) || mov.speed <= 0) {
+    console.warn(`Moving platform at (${p.x}, ${p.y}): invalid speed ${mov.speed}, skipping`);
+    return;
+  }
+  if (!Number.isFinite(mov.distance) || mov.distance === 0) {
+    console.warn(`Moving platform at (${p.x}, ${p.y}): invalid distance ${mov.distance}, skipping`);
+    return;
+  }
+  if (mov.axis !== 'x' && mov.axis !== 'y') {
+    console.warn(`Moving platform at (${p.x}, ${p.y}): invalid axis '${mov.axis}', expected 'x' or 'y', skipping`);
+    return;
+  }
+
+  // Visual
   const g = scene.add.graphics();
   const left = p.x - p.w / 2;
   const top = p.y - p.h / 2;
@@ -340,22 +364,14 @@ function createMovingPlatform(scene: Phaser.Scene, p: PlatformDef, platforms: Ph
   g.lineBetween(left, top + p.h, left + p.w, top + p.h);
 
   // Physics body — added to platforms group for collision
+  // NOTE: Static bodies won't carry riders. For vertical platforms this is acceptable
+  // (player lands as platform moves up). For horizontal, player may slide off — acceptable
+  // for kids platformer difficulty level.
   const plat = scene.add.rectangle(p.x, p.y, p.w, p.h);
   plat.setVisible(false);
   platforms.add(plat);
 
-  // Validate moving config
-  const mov = p.moving!;
-  if (!Number.isFinite(mov.speed) || mov.speed <= 0) {
-    console.warn(`Moving platform at (${p.x}, ${p.y}): invalid speed ${mov.speed}`);
-    return;
-  }
-  if (!Number.isFinite(mov.distance) || mov.distance === 0) {
-    console.warn(`Moving platform at (${p.x}, ${p.y}): invalid distance ${mov.distance}`);
-    return;
-  }
-
-  const prop = mov.axis === 'x' ? 'x' : 'y';
+  const prop = mov.axis;
   const duration = (Math.abs(mov.distance) * 2 / mov.speed) * 1000;
 
   scene.tweens.add({

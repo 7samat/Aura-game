@@ -119,26 +119,31 @@ export class GameScene extends Phaser.Scene {
       });
     }
 
-    // Bounce pads
+    // Bounce pads — only trigger when landing from above
     for (const pad of level.bouncePads) {
       this.physics.add.collider(this.player, pad, () => {
         const playerBody = this.player.body as Phaser.Physics.Arcade.Body;
-        const power = pad.getData('bouncePower') ?? -600;
-        playerBody.setVelocityY(power);
-        this.cameras.main.shake(80, 0.005);
+        // Only bounce if player is falling onto the pad (not hitting from side/below)
+        if (playerBody.touching.down) {
+          const power = pad.getData('bouncePower') ?? -600;
+          playerBody.setVelocityY(power);
+          this.cameras.main.shake(80, 0.005);
+        }
       });
       if (this.companion?.active) {
         this.physics.add.collider(this.companion, pad, () => {
           const body = this.companion.body as Phaser.Physics.Arcade.Body;
-          body.setVelocityY(pad.getData('bouncePower') ?? -600);
+          if (body.touching.down) {
+            body.setVelocityY(pad.getData('bouncePower') ?? -600);
+          }
         });
       }
     }
 
-    // Killzone (pit death) — guarded against repeated triggers
+    // Killzone (pit death) — guarded with isDying flag
     if (level.killzone) {
       this.physics.add.overlap(this.player, level.killzone, () => {
-        if (this.player.active) {
+        if (!this.player.isDying) {
           this.player.die();
         }
       });
@@ -314,8 +319,10 @@ export class GameScene extends Phaser.Scene {
 
     this.player.setPosition(this.spawnPoint.x, this.spawnPoint.y);
     this.player.setAlpha(1);
+    this.player.isDying = false;
     this.auraSystem.clear();
     const body = this.player.body as Phaser.Physics.Arcade.Body;
+    body.enable = true;
     body.setVelocity(0, 0);
 
     // Brief invulnerability flash

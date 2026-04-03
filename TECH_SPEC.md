@@ -1,5 +1,37 @@
 # Aura — Technical Specification
-**Author:** Sam, Tech Lead | **Date:** 2026-04-02 | **Status:** Sprint 3-5 Reference
+**Author:** Sam, Tech Lead | **Last updated:** 2026-04-03 | **Status:** Active Reference
+
+---
+
+## Recently Completed Systems (Sprint 5-6)
+
+### Touch Controls — Raw DOM Events (Completed)
+**File:** `src/ui/TouchControls.ts`
+
+Rewrote touch input to bypass Phaser's interactive object system entirely. Uses raw DOM `touchstart/touchmove/touchend/touchcancel` events on the canvas with `Touch.identifier` tracking per button. Fixes: pointer slot exhaustion after ~30s, cross-triggering between buttons, choppy response. Auto-cleans up on scene shutdown.
+
+### Terrain System (Completed)
+**Files:** `src/data/LevelSchema.ts`, `src/data/LevelLoader.ts`
+
+- `GroundSegmentDef` — replaces flat ground with segmented terrain. Gaps = pits.
+- `BouncePadDef` — launch pads with configurable power via `setData('bouncePower')`.
+- Moving platforms — tweened static bodies with `updateFromGameObject()`.
+- Killzone — invisible body below level triggers pit death.
+
+### Sidekick Companion (Completed)
+**File:** `src/entities/Companion.ts`
+
+Autonomous follow + cheer behaviors. Uses unchosen character tilesheet. State machine: `idle | following | cheering`. Tracks `activeTouchIds` per button for multi-touch.
+
+### Full-Height Energy Gates (Completed)
+**File:** `src/systems/AuraGate.ts`
+
+Gates span ground to ceiling. Horizontal energy slats with ripple animation. 3-phase open effect: flicker → collapse → particle burst. Physics body separate from visual container.
+
+### Energy Node Beacons (Completed)
+**File:** `src/systems/ColorZone.ts`
+
+Pulsing core orb, 3 concentric rotating rings, beacon expansion pulse every 2s, 4 orbiting particles, corner circuit marks.
 
 ---
 

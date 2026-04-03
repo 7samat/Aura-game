@@ -65,7 +65,8 @@ export class TouchControls {
     const { width, height } = this.scene.scale;
     const size = TOUCH_BUTTON_SIZE;
     const pad = TOUCH_BUTTON_PADDING;
-    const bottomY = height - size / 2 - pad - 10;
+    const BOTTOM_MARGIN = 10; // extra margin to avoid edge of screen
+    const bottomY = height - size / 2 - pad - BOTTOM_MARGIN;
 
     const hasSprites = this.scene.textures.exists('btn-sq-blue');
 
@@ -198,6 +199,7 @@ export class TouchControls {
   }
 
   private handleTouchEnd(e: TouchEvent): void {
+    e.preventDefault(); // prevent synthetic mouse events on mobile Safari
     for (let i = 0; i < e.changedTouches.length; i++) {
       const touch = e.changedTouches[i];
       const btnName = this.activeTouches.get(touch.identifier);
