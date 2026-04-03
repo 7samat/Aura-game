@@ -1,3 +1,4 @@
+import Phaser from 'phaser';
 import { GAME_WIDTH, GAME_HEIGHT } from '../config';
 import { SaveManager } from '../systems/SaveManager';
 import { LEVELS } from '../data/LevelManifest';

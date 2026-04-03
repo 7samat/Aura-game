@@ -1,3 +1,4 @@
+import Phaser from 'phaser';
 import { AuraColor, AURA_HEX, AURA_ABILITIES, COLOR_MIX_TABLE, MIX_HOLD_DURATION } from '../config';
 
 export interface AuraState {

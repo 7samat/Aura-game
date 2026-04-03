@@ -1,3 +1,4 @@
+import Phaser from 'phaser';
 import { AuraColor, AURA_HEX } from '../config';
 import { NPC_SPRITE } from '../data/AssetManifest';
 

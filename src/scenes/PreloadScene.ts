@@ -1,3 +1,4 @@
+import Phaser from 'phaser';
 import { GAME_WIDTH, GAME_HEIGHT } from '../config';
 import { SPRITES, ENEMY_SPRITES, NPC_SPRITE, PLAYER_ANIMS, NPC_ANIMS, AnimationDef } from '../data/AssetManifest';
 

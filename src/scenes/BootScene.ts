@@ -1,3 +1,4 @@
+import Phaser from 'phaser';
 import { SPRITES, NPC_SPRITE, UI_SPRITES, TILE_SPRITES, ITEM_SPRITES, BG_SPRITES, SFX_SHEETS } from '../data/AssetManifest';
 
 /**

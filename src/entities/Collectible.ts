@@ -1,3 +1,4 @@
+import Phaser from 'phaser';
 import { AuraColor, AURA_HEX, SPARK_SIZE, SPARK_PULSE_DURATION } from '../config';
 import { CollectibleDef } from '../data/LevelSchema';
 

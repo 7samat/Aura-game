@@ -1,3 +1,4 @@
+import Phaser from 'phaser';
 export interface InputState {
   left: boolean;
   right: boolean;

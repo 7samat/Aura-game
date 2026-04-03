@@ -1,3 +1,4 @@
+import Phaser from 'phaser';
 import { AURA_HEX, AuraColor } from '../config';
 import { AuraSystem } from '../systems/AuraSystem';
 

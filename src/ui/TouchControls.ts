@@ -1,3 +1,4 @@
+import Phaser from 'phaser';
 import { TOUCH_BUTTON_SIZE, TOUCH_BUTTON_PADDING, TOUCH_BUTTON_ALPHA, TOUCH_BUTTON_ALPHA_ACTIVE } from '../config';
 import { InputManager } from '../utils/InputManager';
 

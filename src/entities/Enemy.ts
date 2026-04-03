@@ -1,3 +1,4 @@
+import Phaser from 'phaser';
 import { ENEMY_SPEED } from '../config';
 import { ENEMY_SPRITES } from '../data/AssetManifest';
 
