@@ -32,6 +32,10 @@ export class PreloadScene extends Phaser.Scene {
       fill.width = (barW - 4) * value;
     });
 
+    this.load.on('loaderror', (file: any) => {
+      console.warn(`Failed to load asset: ${file.key} (${file.url})`);
+    });
+
     // Level data
     if (!this.cache.json.has(this.levelId)) {
       this.load.json(this.levelId, `levels/${this.levelId}.json`);

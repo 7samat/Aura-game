@@ -10,6 +10,11 @@ export class BootScene extends Phaser.Scene {
   }
 
   preload(): void {
+    // Handle load errors gracefully — don't crash the game
+    this.load.on('loaderror', (file: any) => {
+      console.warn(`Failed to load asset: ${file.key} (${file.url})`);
+    });
+
     // Character spritesheets
     for (const sprite of Object.values(SPRITES)) {
       this.load.spritesheet(sprite.key, sprite.path, {
