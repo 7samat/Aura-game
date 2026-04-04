@@ -33,6 +33,7 @@ export class GameScene extends Phaser.Scene {
   private totalSparks = 0;
   private startTime = 0;
   private levelDef: any = null;
+  private lastDeathCause: 'pit' | 'enemy' = 'enemy';
 
   constructor() {
     super({ key: 'GameScene' });
@@ -156,6 +157,7 @@ export class GameScene extends Phaser.Scene {
       this.physics.add.overlap(this.player, level.killzone, () => {
         if (!this.player.isDying) {
           SoundManager.getInstance().playSFX('sfx-pit-fall');
+          this.lastDeathCause = 'pit';
           this.player.die();
         }
       });
@@ -287,24 +289,24 @@ export class GameScene extends Phaser.Scene {
     const px = this.player.x;
     const py = this.player.y;
 
-    // First yellow color zone hint
+    // First yellow color zone within range
     for (const zone of this.colorZones) {
       if (zone.auraColor === AuraColor.YELLOW) {
         const dist = Phaser.Math.Distance.Between(px, py, zone.x, zone.y);
         if (dist < 200) {
           this.companion.showHint('yellow-zone', zone.x, 'Try yellow!\nIt pulls gems to you!');
+          break;
         }
-        break; // only check the first yellow zone
       }
     }
 
-    // First echo platform hint
+    // First echo platform within range
     for (const ep of this.echoPlatforms) {
       const dist = Phaser.Math.Distance.Between(px, py, ep.rect.x, ep.rect.y);
       if (dist < 200) {
         this.companion.showHint('echo-platform', ep.rect.x, 'Match the color\nto make it solid!');
+        break;
       }
-      break; // only check the first echo platform
     }
   }
 
@@ -335,6 +337,7 @@ export class GameScene extends Phaser.Scene {
         sfx.once(Phaser.Animations.Events.ANIMATION_COMPLETE, () => sfx.destroy());
       }
     } else {
+      this.lastDeathCause = 'enemy';
       this.player.die();
     }
   }
@@ -357,8 +360,8 @@ export class GameScene extends Phaser.Scene {
       onComplete: () => flash.destroy(),
     });
 
-    // Revive cushion: respawn at companion if standing on solid ground
-    const safePos = this.companion?.getSafePosition();
+    // Revive cushion: respawn at companion only on pit deaths
+    const safePos = this.lastDeathCause === 'pit' ? this.companion?.getSafePosition() : null;
     const respawnPos = safePos ?? this.spawnPoint;
     this.player.setPosition(respawnPos.x, respawnPos.y);
 

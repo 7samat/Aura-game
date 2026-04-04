@@ -22,7 +22,7 @@ export class Companion extends Phaser.Physics.Arcade.Sprite {
   private shownHints: Set<string> = new Set();
   private currentBubble: Phaser.GameObjects.Container | null = null;
   private bubbleTimer: Phaser.Time.TimerEvent | null = null;
-  private pointTarget: { x: number; y: number } | null = null;
+  private hintTimer: Phaser.Time.TimerEvent | null = null;
 
   constructor(scene: Phaser.Scene, x: number, y: number) {
     // Determine which character is the sidekick
@@ -82,6 +82,8 @@ export class Companion extends Phaser.Physics.Arcade.Sprite {
   /** Called each frame from GameScene */
   follow(playerX: number, playerY: number): void {
     if (this.companionState === 'pointing') {
+      const body = this.body as Phaser.Physics.Arcade.Body;
+      body.setVelocityX(0);
       this.glow.setPosition(this.x, this.y);
       if (this.currentBubble) {
         this.currentBubble.setPosition(this.x, this.y - 50);
@@ -215,8 +217,12 @@ export class Companion extends Phaser.Physics.Arcade.Sprite {
     if (this.shownHints.has(hintId)) return;
     this.shownHints.add(hintId);
 
-    // Point toward the target
-    this.pointTarget = { x: targetX, y: this.y };
+    // Cancel any existing hint timer
+    if (this.hintTimer) {
+      this.hintTimer.destroy();
+      this.hintTimer = null;
+    }
+
     this.companionState = 'pointing';
 
     // Face the target
@@ -236,9 +242,9 @@ export class Companion extends Phaser.Physics.Arcade.Sprite {
     this.showBubble(message);
 
     // Return to following after 3.5 seconds
-    this.scene.time.delayedCall(3500, () => {
+    this.hintTimer = this.scene.time.delayedCall(3500, () => {
       this.companionState = 'following';
-      this.pointTarget = null;
+      this.hintTimer = null;
     });
   }
 
@@ -306,6 +312,10 @@ export class Companion extends Phaser.Physics.Arcade.Sprite {
 
   destroy(fromScene?: boolean): void {
     this.dismissBubble();
+    if (this.hintTimer) {
+      this.hintTimer.destroy();
+      this.hintTimer = null;
+    }
     this.scene?.events?.off('spark-collected', this.onSparkCollected, this);
     this.glow?.destroy();
     super.destroy(fromScene);
