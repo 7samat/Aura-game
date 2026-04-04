@@ -2,6 +2,7 @@ import Phaser from 'phaser';
 import { GAME_WIDTH, GAME_HEIGHT } from '../config';
 import { SaveManager } from '../systems/SaveManager';
 import { LEVELS } from '../data/LevelManifest';
+import { SoundManager } from '../systems/SoundManager';
 
 export type TrophyState = 'empty' | 'half' | 'full' | 'sparkling';
 
@@ -25,6 +26,7 @@ export class LevelCompleteScene extends Phaser.Scene {
     // Save progress
     const saveManager = SaveManager.getInstance();
     saveManager.completeLevel(data.levelId, data.sparksCollected, data.totalSparks, data.timeMs, trophy);
+    SoundManager.getInstance().stopBGM();
 
     // Determine next level
     const currentIndex = LEVELS.findIndex(l => l.id === data.levelId);
@@ -237,6 +239,7 @@ export class LevelCompleteScene extends Phaser.Scene {
     }
 
     clickTarget.on('pointerdown', () => {
+      SoundManager.getInstance().playSFX('sfx-ui-tap');
       this.scene.stop('LevelCompleteScene');
       this.scene.stop('UIScene');
       this.scene.stop('GameScene');

@@ -1,6 +1,7 @@
 import Phaser from 'phaser';
 import { GAME_WIDTH, GAME_HEIGHT } from '../config';
 import { createButton } from '../ui/UIHelper';
+import { SoundManager } from '../systems/SoundManager';
 
 export class TitleScene extends Phaser.Scene {
   constructor() {
@@ -106,5 +107,7 @@ export class TitleScene extends Phaser.Scene {
       scale: 0.7,
       onClick: () => this.scene.launch('SettingsScene'),
     });
+
+    SoundManager.getInstance().playBGM('bgm-main');
   }
 }

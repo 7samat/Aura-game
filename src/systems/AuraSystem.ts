@@ -22,6 +22,8 @@ export class AuraSystem {
 
   absorb(color: AuraColor): void {
     if (color === AuraColor.NONE) return;
+    // Deduplicate — don't re-emit if already holding this color
+    if (this.currentAura?.color === color) return;
 
     this.currentAura = {
       color,

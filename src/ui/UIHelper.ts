@@ -1,4 +1,5 @@
 import Phaser from 'phaser';
+import { SoundManager } from '../systems/SoundManager';
 /**
  * Shared UI helpers for creating consistent Kenney-styled buttons across all scenes.
  */
@@ -66,6 +67,7 @@ export function createButton(config: ButtonConfig): Phaser.GameObjects.Container
 
     // Interaction
     btn.on('pointerdown', () => {
+      SoundManager.getInstance().playSFX('sfx-ui-tap');
       btn.setScale(scale * 0.92);
       scene.time.delayedCall(100, () => {
         btn.setScale(scale);
@@ -101,7 +103,10 @@ export function createButton(config: ButtonConfig): Phaser.GameObjects.Container
       container.add(text);
     }
 
-    bg.on('pointerdown', onClick);
+    bg.on('pointerdown', () => {
+      SoundManager.getInstance().playSFX('sfx-ui-tap');
+      onClick();
+    });
   }
 
   return container;

@@ -175,6 +175,28 @@ export const SFX_SHEETS: SfxSheetDef[] = [
   { key: 'sfx-success',       path: 'assets/sfx/success.png',       frameWidth: 40, frameHeight: 40, frameCount: 60 },
 ];
 
+// ── Audio Assets (Kenney CC0 packs: Digital Audio, Impact Sounds, Sci-Fi Sounds, Music Jingles, Interface Sounds) ──
+
+export interface AudioDef {
+  key: string;
+  paths: string[];   // OGG first (smaller), WAV fallback (Safari/iOS)
+}
+
+export const AUDIO_ASSETS: AudioDef[] = [
+  // SFX
+  { key: 'sfx-jump',           paths: ['assets/audio/jump.ogg',           'assets/audio/jump.wav'] },
+  { key: 'sfx-gem',            paths: ['assets/audio/gem.ogg',            'assets/audio/gem.wav'] },
+  { key: 'sfx-stomp',          paths: ['assets/audio/stomp.ogg',          'assets/audio/stomp.wav'] },
+  { key: 'sfx-land',           paths: ['assets/audio/land.ogg',           'assets/audio/land.wav'] },
+  { key: 'sfx-absorb',         paths: ['assets/audio/absorb.ogg',         'assets/audio/absorb.wav'] },
+  { key: 'sfx-aura-switch',    paths: ['assets/audio/aura-switch.ogg',    'assets/audio/aura-switch.wav'] },
+  { key: 'sfx-level-complete', paths: ['assets/audio/level-complete.ogg', 'assets/audio/level-complete.wav'] },
+  { key: 'sfx-ui-tap',         paths: ['assets/audio/ui-tap.ogg',         'assets/audio/ui-tap.wav'] },
+  { key: 'sfx-pit-fall',       paths: ['assets/audio/pit-fall.ogg',       'assets/audio/pit-fall.wav'] },
+  // BGM
+  { key: 'bgm-main',           paths: ['assets/audio/bgm-main.ogg',      'assets/audio/bgm-main.wav'] },
+];
+
 // ── Animations ───────────────────────────────────────────────
 // Frame indices match the tilesheet layout documented above.
 

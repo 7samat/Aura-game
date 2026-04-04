@@ -11,6 +11,7 @@ import { TouchControls } from '../ui/TouchControls';
 import { Companion } from '../entities/Companion';
 import { loadLevel, LoadedLevel, EchoPlatform } from '../data/LevelLoader';
 import { ParallaxLayer } from '../data/BackgroundBuilder';
+import { SoundManager } from '../systems/SoundManager';
 
 export class GameScene extends Phaser.Scene {
   private player!: Player;
@@ -54,9 +55,16 @@ export class GameScene extends Phaser.Scene {
     this.auraSystem = new AuraSystem(this);
     this.inputManager = new InputManager(this);
 
+    // Sync audio settings
+    SoundManager.getInstance().syncSettings();
+
     // Forward aura events to game-level for UIScene
     this.events.on(AuraSystem.AURA_CHANGED, (state: any) => {
       this.game.events.emit(AuraSystem.AURA_CHANGED, state);
+      // Only play switch sound on actual color gain, not on clear/null
+      if (state?.color && state.color !== 'none') {
+        SoundManager.getInstance().playSFX('sfx-aura-switch');
+      }
     });
 
     // Load level from data
@@ -144,6 +152,7 @@ export class GameScene extends Phaser.Scene {
     if (level.killzone) {
       this.physics.add.overlap(this.player, level.killzone, () => {
         if (!this.player.isDying) {
+          SoundManager.getInstance().playSFX('sfx-pit-fall');
           this.player.die();
         }
       });
@@ -166,6 +175,7 @@ export class GameScene extends Phaser.Scene {
     // Spark collection event
     this.events.on('spark-collected', (data: { value: number }) => {
       this.sparksCollected += data.value;
+      SoundManager.getInstance().playSFX('sfx-gem');
       this.game.events.emit('spark-collected', {
         collected: this.sparksCollected,
         total: this.totalSparks,
@@ -280,6 +290,7 @@ export class GameScene extends Phaser.Scene {
 
     if (playerBody.velocity.y > 0 && this.player.y < enemy.y - 10) {
       enemy.stomp();
+      SoundManager.getInstance().playSFX('sfx-stomp');
       this.enemies = this.enemies.filter(e => e !== enemy);
       playerBody.setVelocityY(-250);
 
@@ -340,6 +351,7 @@ export class GameScene extends Phaser.Scene {
     this.levelComplete_ = true;
 
     this.physics.pause();
+    SoundManager.getInstance().playSFX('sfx-level-complete');
 
     const timeMs = this.time.now - this.startTime;
 

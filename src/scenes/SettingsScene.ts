@@ -1,6 +1,7 @@
 import Phaser from 'phaser';
 import { GAME_WIDTH, GAME_HEIGHT } from '../config';
 import { SaveManager, GameSettings } from '../systems/SaveManager';
+import { SoundManager } from '../systems/SoundManager';
 
 export class SettingsScene extends Phaser.Scene {
   private saveManager: SaveManager;
@@ -39,11 +40,13 @@ export class SettingsScene extends Phaser.Scene {
 
     this.createToggle(GAME_WIDTH / 2, startY, '\uD83C\uDFB5 Music', this.settings.musicOn, (val) => {
       this.settings.musicOn = val;
+      SoundManager.getInstance().setMusicEnabled(val);
       this.saveSettings();
     });
 
     this.createToggle(GAME_WIDTH / 2, startY + rowHeight, '\uD83D\uDD0A Sound', this.settings.sfxOn, (val) => {
       this.settings.sfxOn = val;
+      SoundManager.getInstance().setSFXEnabled(val);
       this.saveSettings();
     });
 

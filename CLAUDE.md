@@ -62,6 +62,8 @@ SettingsScene (overlay, launchable from TitleScene or pause)
 
 **BackgroundBuilder** (`src/data/BackgroundBuilder.ts`): Procedural backgrounds by theme (cyberpunk, forest, cave). Seeded RNG for deterministic generation. Layers: gradient → moon → mountains → clouds → towers → city silhouette.
 
+**SoundManager** (`src/systems/SoundManager.ts`): Singleton. Wraps Phaser's sound system. Reads `musicOn`/`sfxOn` from SaveManager profiles. Methods: `playBGM(key)`, `stopBGM()`, `playSFX(key)`, `setMusicEnabled()`, `setSFXEnabled()`, `syncSettings()`. Guards all operations against missing WebAudio. Initialized in BootScene via `SoundManager.init(game)`.
+
 ### Entities
 
 **Player** (`src/entities/Player.ts`): Extends Arcade Sprite. 80x110 Kenney tilesheet scaled to 0.4. Depth 10 with ADD-blended aura glow at depth 9. Animations: idle (4-frame breathing), run (4-frame at 12fps), jump, fall, hurt, duck, action, cheer, skid. Shows "● Press!" prompt when in color zone.
@@ -101,6 +103,12 @@ Key texture keys:
 - `sfx-spark-burst`, `sfx-charge-up`, `sfx-coin-burst`, etc.: Effect spritesheets
 - `bg-moon`, `bg-mountains`, `bg-cloud1/2`, `bg-tower`: Background elements
 
+Key audio keys (Kenney CC0 OGG files in `public/assets/audio/`):
+- `sfx-jump`, `sfx-land`, `sfx-absorb`, `sfx-gem`, `sfx-stomp`: Gameplay SFX
+- `sfx-aura-switch`, `sfx-level-complete`, `sfx-pit-fall`: Event SFX
+- `sfx-ui-tap`: Button click SFX
+- `bgm-main`: Background music loop (title screen)
+
 ### UI System
 
 **UIHelper** (`src/ui/UIHelper.ts`): Shared helpers — `createButton()`, `createBackButton()`, `createPanel()`. Uses Kenney UI Pack sprites with fallback to plain rectangles.
@@ -128,6 +136,7 @@ Key texture keys:
 - **Segmented ground terrain**: Ground is an array of `GroundSegmentDef` — gaps between segments are pits. Killzone body below level catches falls.
 - **TileSprite parallax**: Background layers use `Phaser.GameObjects.TileSprite` with `tilePositionX = camX * scrollFactor` updated each frame. City silhouette rendered to generated texture then used as TileSprite.
 - **Bounce pad data**: Power stored via `pad.setData('bouncePower')` / `pad.getData('bouncePower')` — typed Phaser DataManager, not untyped expandos.
+- **Audio via SoundManager singleton**: All audio routed through `SoundManager.getInstance()`. Kenney CC0 OGG files loaded in BootScene preload. Settings toggles in SettingsScene call `setMusicEnabled()`/`setSFXEnabled()` which both persist via SaveManager and control playback in real time. Web Audio autoplay unlock handled on first user gesture in main.ts.
 
 ## Design Documents
 
