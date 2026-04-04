@@ -76,11 +76,26 @@ export class LevelCompleteScene extends Phaser.Scene {
     }).setOrigin(0.5).setAlpha(0);
 
     this.time.delayedCall(1400, () => {
-      sparkText.setText(`${data.sparksCollected} / ${data.totalSparks}`);
+      sparkText.setText(`${data.sparksCollected} / ${data.totalSparks} colors restored`);
       this.tweens.add({
         targets: sparkText,
         alpha: 1,
         duration: 300,
+      });
+    });
+
+    // Narrative flavor text
+    const flavorText = this.add.text(GAME_WIDTH / 2, GAME_HEIGHT * 0.72, 'The light is coming back.', {
+      fontSize: '12px',
+      color: '#ffd94d',
+      fontStyle: 'italic',
+    }).setOrigin(0.5).setAlpha(0);
+
+    this.time.delayedCall(1800, () => {
+      this.tweens.add({
+        targets: flavorText,
+        alpha: 0.7,
+        duration: 400,
       });
     });
 

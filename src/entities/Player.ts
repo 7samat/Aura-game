@@ -14,6 +14,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
   private canJump = true;
   private wasAirborne = false;
   public isDying = false;
+  private isInvulnerable = false;
   private actionPrompt: Phaser.GameObjects.Text;
   private hasAnimations: boolean;
   private spriteKey: string;
@@ -205,6 +206,59 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
       repeat: -1,
       ease: 'Sine.easeInOut',
     });
+  }
+
+  /** 2-hit system: first hit strips aura, second hit kills */
+  hurtByEnemy(): void {
+    if (this.isDying || this.isInvulnerable) return;
+
+    if (this.auraSystem.getCurrentColor() !== AuraColor.NONE) {
+      // First hit: lose aura, survive with brief invulnerability
+      const hex = this.auraSystem.getHex() ?? 0xffffff;
+      this.auraSystem.clear();
+      SoundManager.getInstance().playSFX('sfx-pit-fall'); // aura break sound (reuse descending tone)
+      this.playAuraShatter(hex);
+      this.setInvulnerable(0.8);
+    } else {
+      // No aura: death
+      this.die();
+    }
+  }
+
+  private setInvulnerable(duration: number): void {
+    this.isInvulnerable = true;
+    // Visual feedback: rapid flash
+    this.scene.tweens.add({
+      targets: this,
+      alpha: { from: 0.3, to: 1 },
+      duration: 100,
+      repeat: Math.floor(duration / 0.2),
+      yoyo: true,
+      onComplete: () => {
+        this.setAlpha(1);
+        this.isInvulnerable = false;
+      },
+    });
+  }
+
+  private playAuraShatter(hex: number): void {
+    // Burst particles outward from player position (reuse sfx-spark-burst if available)
+    if (this.scene.textures.exists('sfx-spark-burst')) {
+      const sfx = this.scene.add.sprite(this.x, this.y, 'sfx-spark-burst');
+      sfx.setScale(1.2);
+      sfx.setTint(hex);
+      sfx.setDepth(100);
+      sfx.setBlendMode(Phaser.BlendModes.ADD);
+      sfx.play('sfx-spark-burst');
+      sfx.once(Phaser.Animations.Events.ANIMATION_COMPLETE, () => sfx.destroy());
+    }
+
+    // Camera shake for impact feel
+    this.scene.cameras.main.shake(150, 0.006);
+
+    // Knockback: small push away
+    const body = this.body as Phaser.Physics.Arcade.Body;
+    body.setVelocityY(-150);
   }
 
   die(): void {

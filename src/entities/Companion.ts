@@ -180,25 +180,52 @@ export class Companion extends Phaser.Physics.Arcade.Sprite {
     return { x: this.x, y: this.y };
   }
 
-  /** Visual feedback when companion catches the falling player */
-  playCatch(): void {
-    // Brief glow flash
+  /** Step 1 of catch sequence: companion looks alarmed */
+  playAlert(): void {
+    this.companionState = 'pointing'; // freeze in place
+    const body = this.body as Phaser.Physics.Arcade.Body;
+    body.setVelocityX(0);
+
+    // Use hurt frame as alert expression
+    if (this.hasAnimations) {
+      this.playAnim('hurt');
+    }
+  }
+
+  /** Step 2 of catch sequence: glow expands into a protective shield */
+  expandGlow(): void {
     this.scene.tweens.add({
       targets: this.glow,
-      alpha: 0.7,
-      scale: 1.8,
+      scaleX: 2.5,
+      scaleY: 2.5,
+      alpha: 0.6,
       duration: 300,
-      yoyo: true,
+      ease: 'Power2',
+    });
+  }
+
+  /** Step 3 of catch sequence: glow contracts, companion cheers + "Gotcha!" */
+  playCatch(): void {
+    // Contract glow back to normal
+    this.scene.tweens.add({
+      targets: this.glow,
+      scaleX: 1,
+      scaleY: 1,
+      alpha: 0.15,
+      duration: 300,
       ease: 'Power2',
     });
 
-    // Play cheer animation if available
+    // Play cheer animation
     if (this.hasAnimations) {
       this.play(`${this.spriteKey}-cheer`);
       this.scene.time.delayedCall(800, () => {
         this.companionState = 'following';
       });
     }
+
+    // Show narrative catch bubble
+    this.showBubble('Gotcha!');
   }
 
   private playAnim(name: string): void {

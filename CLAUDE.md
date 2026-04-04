@@ -139,6 +139,9 @@ Key audio keys (Kenney CC0 OGG files in `public/assets/audio/`):
 - **TileSprite parallax**: Background layers use `Phaser.GameObjects.TileSprite` with `tilePositionX = camX * scrollFactor` updated each frame. City silhouette rendered to generated texture then used as TileSprite.
 - **Bounce pad data**: Power stored via `pad.setData('bouncePower')` / `pad.getData('bouncePower')` — typed Phaser DataManager, not untyped expandos.
 - **Audio via SoundManager singleton**: All audio routed through `SoundManager.getInstance()`. Kenney CC0 OGG files loaded in BootScene preload. Settings toggles in SettingsScene call `setMusicEnabled()`/`setSFXEnabled()` which both persist via SaveManager and control playback in real time. Web Audio autoplay unlock handled on first user gesture in main.ts.
+- **2-hit health system**: Enemy contact with aura → aura stripped (shatter VFX + 0.8s invulnerability), player survives. Enemy contact without aura → death. Pit falls always kill (bypass 2-hit). Implemented in `Player.hurtByEnemy()`.
+- **Cinematic revive catch**: Pit death + grounded companion → 1s sequence: companion alert frame → glow expands into shield → player fades in at companion → glow contracts → "Gotcha!" bubble → invulnerability. Falls back to spawn point respawn if companion is airborne.
+- **Narrative beats**: Story text delivered through existing UI moments (title subtitle rotation, level intro overlay, level complete flavor text, companion speech bubbles). Lines kept short and speakable for future voice-over. Story: "Luminos lost its color. Kai and Nova bring it back."
 
 ## Design Documents
 
