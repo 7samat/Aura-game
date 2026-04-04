@@ -57,6 +57,21 @@ game.events.once('ready', () => {
   if (canvas) {
     canvas.tabIndex = 0;
     canvas.focus();
-    canvas.addEventListener('mousedown', () => canvas.focus());
+
+    // Unlock Web Audio on first user gesture (mobile autoplay policy)
+    const unlockAudio = () => {
+      if (game.sound && 'context' in game.sound) {
+        const ctx = (game.sound as any).context as AudioContext;
+        if (ctx.state === 'suspended') {
+          ctx.resume();
+        }
+      }
+    };
+
+    canvas.addEventListener('mousedown', () => {
+      canvas.focus();
+      unlockAudio();
+    });
+    canvas.addEventListener('touchstart', unlockAudio, { once: true });
   }
 });

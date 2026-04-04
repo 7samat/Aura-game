@@ -3,6 +3,7 @@ import { PLAYER_SPEED, PLAYER_JUMP_VELOCITY, AURA_HEX, AuraColor } from '../conf
 import { InputManager } from '../utils/InputManager';
 import { AuraSystem } from '../systems/AuraSystem';
 import { SPRITES } from '../data/AssetManifest';
+import { SoundManager } from '../systems/SoundManager';
 
 export class Player extends Phaser.Physics.Arcade.Sprite {
   private inputManager: InputManager;
@@ -96,12 +97,14 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     const jumpVel = PLAYER_JUMP_VELOCITY * (abilities.jumpBoost > 0 ? abilities.jumpBoost : 1);
     if (input.jump && body.blocked.down && this.canJump) {
       body.setVelocityY(jumpVel);
+      SoundManager.getInstance().playSFX('sfx-jump');
       this.canJump = false;
       this.scene.time.delayedCall(200, () => { this.canJump = true; });
     }
 
     // Landing squash — uses stored baseScale to prevent accumulation
     if (body.blocked.down && this.wasAirborne) {
+      SoundManager.getInstance().playSFX('sfx-land');
       this.setScale(this.baseScale);
       this.scene.tweens.add({
         targets: this,
@@ -171,6 +174,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     }
 
     const hex = AURA_HEX[state.color] ?? 0xffffff;
+    SoundManager.getInstance().playSFX('sfx-absorb');
     this.auraGlow.setFillStyle(hex, 0.5);
 
     // Play charge-up SFX animation on absorption

@@ -175,6 +175,28 @@ export const SFX_SHEETS: SfxSheetDef[] = [
   { key: 'sfx-success',       path: 'assets/sfx/success.png',       frameWidth: 40, frameHeight: 40, frameCount: 60 },
 ];
 
+// ── Audio Assets (Kenney CC0 packs: Digital Audio, Impact Sounds, Sci-Fi Sounds, Music Jingles, Interface Sounds) ──
+
+export interface AudioDef {
+  key: string;
+  path: string;
+}
+
+export const AUDIO_ASSETS: AudioDef[] = [
+  // SFX
+  { key: 'sfx-jump',           path: 'assets/audio/jump.ogg' },
+  { key: 'sfx-gem',            path: 'assets/audio/gem.ogg' },
+  { key: 'sfx-stomp',          path: 'assets/audio/stomp.ogg' },
+  { key: 'sfx-land',           path: 'assets/audio/land.ogg' },
+  { key: 'sfx-absorb',         path: 'assets/audio/absorb.ogg' },
+  { key: 'sfx-aura-switch',    path: 'assets/audio/aura-switch.ogg' },
+  { key: 'sfx-level-complete', path: 'assets/audio/level-complete.ogg' },
+  { key: 'sfx-ui-tap',         path: 'assets/audio/ui-tap.ogg' },
+  { key: 'sfx-pit-fall',       path: 'assets/audio/pit-fall.ogg' },
+  // BGM
+  { key: 'bgm-main',           path: 'assets/audio/bgm-main.ogg' },
+];
+
 // ── Animations ───────────────────────────────────────────────
 // Frame indices match the tilesheet layout documented above.
 

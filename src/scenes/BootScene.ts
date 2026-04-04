@@ -1,5 +1,6 @@
 import Phaser from 'phaser';
-import { SPRITES, NPC_SPRITE, UI_SPRITES, TILE_SPRITES, ITEM_SPRITES, BG_SPRITES, SFX_SHEETS } from '../data/AssetManifest';
+import { SPRITES, NPC_SPRITE, UI_SPRITES, TILE_SPRITES, ITEM_SPRITES, BG_SPRITES, SFX_SHEETS, AUDIO_ASSETS } from '../data/AssetManifest';
+import { SoundManager } from '../systems/SoundManager';
 
 /**
  * BootScene — loads all shared assets upfront, then goes to TitleScene.
@@ -59,6 +60,11 @@ export class BootScene extends Phaser.Scene {
         frameHeight: sfx.frameHeight,
       });
     }
+
+    // Audio assets (Kenney CC0)
+    for (const audio of AUDIO_ASSETS) {
+      this.load.audio(audio.key, audio.path);
+    }
   }
 
   create(): void {
@@ -72,6 +78,9 @@ export class BootScene extends Phaser.Scene {
         repeat: 0,
       });
     }
+
+    // Initialize audio system (Kenney audio files loaded in preload)
+    SoundManager.init(this.game);
 
     this.scene.start('TitleScene');
   }
