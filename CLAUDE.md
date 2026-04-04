@@ -72,6 +72,8 @@ SettingsScene (overlay, launchable from TitleScene or pause)
 
 **NPC** (`src/entities/NPC.ts`): Kenney Adventurer tilesheet at 0.35 scale. Onboarding demo: walks to zone → absorbs → walks through gate → fades out.
 
+**Companion** (`src/entities/Companion.ts`): Sidekick — the unchosen character. Follows player with proportional velocity, jumps when player is above. States: idle, following, cheering, pointing. Revive cushion: `getSafePosition()` returns position if grounded (`body.blocked.down`), used by GameScene to respawn player at companion on pit death instead of spawn point. Onboarding: `showHint(id, targetX, msg)` triggers once per hint per level — companion hops toward target and shows speech bubble (auto-dismisses after 3.5s).
+
 **Collectible** (`src/entities/Collectible.ts`): Uses Kenney gem sprites (64x64 scaled to 0.32). Color-coded to zone. Hidden sparks use diamond sprite at low alpha, reveal when player is within 96px. Plays `sfx-coin-burst` animation on pickup. Score: regular=1, hidden=2.
 
 ### Data-Driven Levels

@@ -10,6 +10,7 @@ import { InputManager } from '../utils/InputManager';
 import { TouchControls } from '../ui/TouchControls';
 import { Companion } from '../entities/Companion';
 import { loadLevel, LoadedLevel, EchoPlatform } from '../data/LevelLoader';
+import { ColorZone } from '../systems/ColorZone';
 import { ParallaxLayer } from '../data/BackgroundBuilder';
 import { SoundManager } from '../systems/SoundManager';
 
@@ -23,6 +24,7 @@ export class GameScene extends Phaser.Scene {
   private inputManager!: InputManager;
   private auraGates: AuraGate[] = [];
   private echoPlatforms: EchoPlatform[] = [];
+  private colorZones: ColorZone[] = [];
   private parallaxLayers: ParallaxLayer[] = [];
   private levelComplete_ = false;
   private levelData: unknown = null;
@@ -31,6 +33,7 @@ export class GameScene extends Phaser.Scene {
   private totalSparks = 0;
   private startTime = 0;
   private levelDef: any = null;
+  private lastDeathCause: 'pit' | 'enemy' = 'enemy';
 
   constructor() {
     super({ key: 'GameScene' });
@@ -76,6 +79,7 @@ export class GameScene extends Phaser.Scene {
     this.collectibles = [...level.collectibles];
     this.auraGates = [...level.auraGates];
     this.echoPlatforms = [...level.echoPlatforms];
+    this.colorZones = [...level.colorZones];
     this.parallaxLayers = [...level.parallaxLayers];
     this.totalSparks = level.totalSparks;
     this.levelDef = level.def;
@@ -153,6 +157,7 @@ export class GameScene extends Phaser.Scene {
       this.physics.add.overlap(this.player, level.killzone, () => {
         if (!this.player.isDying) {
           SoundManager.getInstance().playSFX('sfx-pit-fall');
+          this.lastDeathCause = 'pit';
           this.player.die();
         }
       });
@@ -193,6 +198,7 @@ export class GameScene extends Phaser.Scene {
     // Sidekick follows player
     if (this.companion?.active) {
       this.companion.follow(this.player.x, this.player.y);
+      this.checkOnboardingHints();
     }
 
     // Parallax: update TileSprite positions based on camera scroll
@@ -279,6 +285,31 @@ export class GameScene extends Phaser.Scene {
     }
   }
 
+  private checkOnboardingHints(): void {
+    const px = this.player.x;
+    const py = this.player.y;
+
+    // First yellow color zone within range
+    for (const zone of this.colorZones) {
+      if (zone.auraColor === AuraColor.YELLOW) {
+        const dist = Phaser.Math.Distance.Between(px, py, zone.x, zone.y);
+        if (dist < 200) {
+          this.companion.showHint('yellow-zone', zone.x, 'Try yellow!\nIt pulls gems to you!');
+          break;
+        }
+      }
+    }
+
+    // First echo platform within range
+    for (const ep of this.echoPlatforms) {
+      const dist = Phaser.Math.Distance.Between(px, py, ep.rect.x, ep.rect.y);
+      if (dist < 200) {
+        this.companion.showHint('echo-platform', ep.rect.x, 'Match the color\nto make it solid!');
+        break;
+      }
+    }
+  }
+
   private handleCollectiblePickup(collectible: Collectible): void {
     if (!collectible.active) return;
     collectible.collect();
@@ -306,6 +337,7 @@ export class GameScene extends Phaser.Scene {
         sfx.once(Phaser.Animations.Events.ANIMATION_COMPLETE, () => sfx.destroy());
       }
     } else {
+      this.lastDeathCause = 'enemy';
       this.player.die();
     }
   }
@@ -328,7 +360,14 @@ export class GameScene extends Phaser.Scene {
       onComplete: () => flash.destroy(),
     });
 
-    this.player.setPosition(this.spawnPoint.x, this.spawnPoint.y);
+    // Revive cushion: respawn at companion only on pit deaths
+    const safePos = this.lastDeathCause === 'pit' ? this.companion?.getSafePosition() : null;
+    const respawnPos = safePos ?? this.spawnPoint;
+    this.player.setPosition(respawnPos.x, respawnPos.y);
+
+    if (safePos) {
+      this.companion.playCatch();
+    }
     this.player.setAlpha(1);
     this.player.isDying = false;
     this.auraSystem.clear();
