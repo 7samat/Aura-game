@@ -10,6 +10,7 @@ import { InputManager } from '../utils/InputManager';
 import { TouchControls } from '../ui/TouchControls';
 import { Companion } from '../entities/Companion';
 import { loadLevel, LoadedLevel, EchoPlatform } from '../data/LevelLoader';
+import { ColorZone } from '../systems/ColorZone';
 import { ParallaxLayer } from '../data/BackgroundBuilder';
 import { SoundManager } from '../systems/SoundManager';
 
@@ -23,6 +24,7 @@ export class GameScene extends Phaser.Scene {
   private inputManager!: InputManager;
   private auraGates: AuraGate[] = [];
   private echoPlatforms: EchoPlatform[] = [];
+  private colorZones: ColorZone[] = [];
   private parallaxLayers: ParallaxLayer[] = [];
   private levelComplete_ = false;
   private levelData: unknown = null;
@@ -76,6 +78,7 @@ export class GameScene extends Phaser.Scene {
     this.collectibles = [...level.collectibles];
     this.auraGates = [...level.auraGates];
     this.echoPlatforms = [...level.echoPlatforms];
+    this.colorZones = [...level.colorZones];
     this.parallaxLayers = [...level.parallaxLayers];
     this.totalSparks = level.totalSparks;
     this.levelDef = level.def;
@@ -193,6 +196,7 @@ export class GameScene extends Phaser.Scene {
     // Sidekick follows player
     if (this.companion?.active) {
       this.companion.follow(this.player.x, this.player.y);
+      this.checkOnboardingHints();
     }
 
     // Parallax: update TileSprite positions based on camera scroll
@@ -279,6 +283,31 @@ export class GameScene extends Phaser.Scene {
     }
   }
 
+  private checkOnboardingHints(): void {
+    const px = this.player.x;
+    const py = this.player.y;
+
+    // First yellow color zone hint
+    for (const zone of this.colorZones) {
+      if (zone.auraColor === AuraColor.YELLOW) {
+        const dist = Phaser.Math.Distance.Between(px, py, zone.x, zone.y);
+        if (dist < 200) {
+          this.companion.showHint('yellow-zone', zone.x, 'Try yellow!\nIt pulls gems to you!');
+        }
+        break; // only check the first yellow zone
+      }
+    }
+
+    // First echo platform hint
+    for (const ep of this.echoPlatforms) {
+      const dist = Phaser.Math.Distance.Between(px, py, ep.rect.x, ep.rect.y);
+      if (dist < 200) {
+        this.companion.showHint('echo-platform', ep.rect.x, 'Match the color\nto make it solid!');
+      }
+      break; // only check the first echo platform
+    }
+  }
+
   private handleCollectiblePickup(collectible: Collectible): void {
     if (!collectible.active) return;
     collectible.collect();
@@ -328,7 +357,14 @@ export class GameScene extends Phaser.Scene {
       onComplete: () => flash.destroy(),
     });
 
-    this.player.setPosition(this.spawnPoint.x, this.spawnPoint.y);
+    // Revive cushion: respawn at companion if standing on solid ground
+    const safePos = this.companion?.getSafePosition();
+    const respawnPos = safePos ?? this.spawnPoint;
+    this.player.setPosition(respawnPos.x, respawnPos.y);
+
+    if (safePos) {
+      this.companion.playCatch();
+    }
     this.player.setAlpha(1);
     this.player.isDying = false;
     this.auraSystem.clear();

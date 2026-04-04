@@ -2,7 +2,7 @@ import Phaser from 'phaser';
 import { AuraColor, AURA_HEX } from '../config';
 import { SaveManager } from '../systems/SaveManager';
 
-type CompanionState = 'idle' | 'following' | 'cheering';
+type CompanionState = 'idle' | 'following' | 'cheering' | 'pointing';
 
 /**
  * Sidekick companion — the unchosen character from character selection.
@@ -17,6 +17,12 @@ export class Companion extends Phaser.Physics.Arcade.Sprite {
   private cheerTimer = 0;
   private hasAnimations: boolean;
   private spriteKey: string;
+
+  // Onboarding hint system
+  private shownHints: Set<string> = new Set();
+  private currentBubble: Phaser.GameObjects.Container | null = null;
+  private bubbleTimer: Phaser.Time.TimerEvent | null = null;
+  private pointTarget: { x: number; y: number } | null = null;
 
   constructor(scene: Phaser.Scene, x: number, y: number) {
     // Determine which character is the sidekick
@@ -75,6 +81,14 @@ export class Companion extends Phaser.Physics.Arcade.Sprite {
 
   /** Called each frame from GameScene */
   follow(playerX: number, playerY: number): void {
+    if (this.companionState === 'pointing') {
+      this.glow.setPosition(this.x, this.y);
+      if (this.currentBubble) {
+        this.currentBubble.setPosition(this.x, this.y - 50);
+      }
+      return;
+    }
+
     if (this.companionState === 'cheering') {
       this.glow.setPosition(this.x, this.y);
       return;
@@ -157,6 +171,34 @@ export class Companion extends Phaser.Physics.Arcade.Sprite {
     });
   }
 
+  /** Returns companion position if standing on solid ground, null if airborne */
+  getSafePosition(): { x: number; y: number } | null {
+    const body = this.body as Phaser.Physics.Arcade.Body;
+    if (!body || !body.blocked.down) return null;
+    return { x: this.x, y: this.y };
+  }
+
+  /** Visual feedback when companion catches the falling player */
+  playCatch(): void {
+    // Brief glow flash
+    this.scene.tweens.add({
+      targets: this.glow,
+      alpha: 0.7,
+      scale: 1.8,
+      duration: 300,
+      yoyo: true,
+      ease: 'Power2',
+    });
+
+    // Play cheer animation if available
+    if (this.hasAnimations) {
+      this.play(`${this.spriteKey}-cheer`);
+      this.scene.time.delayedCall(800, () => {
+        this.companionState = 'following';
+      });
+    }
+  }
+
   private playAnim(name: string): void {
     const key = `${this.spriteKey}-${name}`;
     if (this.anims.currentAnim?.key !== key) {
@@ -164,7 +206,106 @@ export class Companion extends Phaser.Physics.Arcade.Sprite {
     }
   }
 
+  /**
+   * Trigger a sidekick hint — the companion hops toward the target and shows
+   * a speech bubble with the given message.  Each hintId fires only once per
+   * level playthrough.
+   */
+  showHint(hintId: string, targetX: number, message: string): void {
+    if (this.shownHints.has(hintId)) return;
+    this.shownHints.add(hintId);
+
+    // Point toward the target
+    this.pointTarget = { x: targetX, y: this.y };
+    this.companionState = 'pointing';
+
+    // Face the target
+    this.setFlipX(targetX < this.x);
+
+    // Hop animation
+    this.scene.tweens.add({
+      targets: this,
+      y: this.y - 15,
+      duration: 200,
+      yoyo: true,
+      repeat: 2,
+      ease: 'Power2',
+    });
+
+    // Show speech bubble
+    this.showBubble(message);
+
+    // Return to following after 3.5 seconds
+    this.scene.time.delayedCall(3500, () => {
+      this.companionState = 'following';
+      this.pointTarget = null;
+    });
+  }
+
+  private showBubble(text: string): void {
+    this.dismissBubble();
+
+    const bubble = this.scene.add.container(this.x, this.y - 50);
+    bubble.setDepth(200);
+
+    const textObj = this.scene.add.text(0, 0, text, {
+      fontSize: '11px',
+      color: '#ffffff',
+      fontStyle: 'bold',
+      stroke: '#000000',
+      strokeThickness: 2,
+      wordWrap: { width: 140 },
+      align: 'center',
+    }).setOrigin(0.5);
+
+    const padding = 8;
+    const bg = this.scene.add.rectangle(
+      0, 0,
+      textObj.width + padding * 2,
+      textObj.height + padding * 2,
+      0x1a1a3a, 0.9,
+    );
+    bg.setStrokeStyle(2, 0x4dc8ff, 0.8);
+
+    // Small triangle pointer at bottom
+    const pointer = this.scene.add.triangle(
+      0, bg.height / 2 + 5,
+      -6, 0, 6, 0, 0, 8,
+      0x1a1a3a,
+    );
+    pointer.setAlpha(0.9);
+
+    bubble.add([bg, textObj, pointer]);
+
+    // Fade in
+    bubble.setAlpha(0);
+    this.scene.tweens.add({
+      targets: bubble,
+      alpha: 1,
+      duration: 200,
+    });
+
+    this.currentBubble = bubble;
+
+    // Auto-dismiss after 3.5s
+    this.bubbleTimer = this.scene.time.delayedCall(3500, () => {
+      this.dismissBubble();
+    });
+  }
+
+  private dismissBubble(): void {
+    if (this.currentBubble) {
+      this.currentBubble.destroy();
+      this.currentBubble = null;
+    }
+    if (this.bubbleTimer) {
+      this.bubbleTimer.destroy();
+      this.bubbleTimer = null;
+    }
+  }
+
   destroy(fromScene?: boolean): void {
+    this.dismissBubble();
     this.scene?.events?.off('spark-collected', this.onSparkCollected, this);
     this.glow?.destroy();
     super.destroy(fromScene);
