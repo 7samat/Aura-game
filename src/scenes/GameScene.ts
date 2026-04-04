@@ -177,6 +177,36 @@ export class GameScene extends Phaser.Scene {
     // Launch UI overlay with spark info
     this.scene.launch('UIScene', { totalSparks: this.totalSparks });
 
+    // Level intro narrative text
+    const introLines: Record<string, string> = {
+      'level-01': 'The color is fading. But you still glow.',
+      'level-02': 'Deeper into Luminos. The machines grow restless.',
+      'level-03': 'The heart of the city. Almost there.',
+    };
+    const levelId = this.levelDef?.meta?.id ?? '';
+    const introText = introLines[levelId];
+    if (introText) {
+      const overlay = this.add.text(
+        GAME_WIDTH / 2, GAME_HEIGHT * 0.35, introText,
+        {
+          fontSize: '16px',
+          color: '#ffd94d',
+          fontStyle: 'italic',
+          stroke: '#000000',
+          strokeThickness: 3,
+        }
+      ).setOrigin(0.5).setScrollFactor(0).setDepth(500).setAlpha(0);
+
+      this.tweens.add({
+        targets: overlay,
+        alpha: 1,
+        duration: 500,
+        hold: 1500,
+        yoyo: true,
+        onComplete: () => overlay.destroy(),
+      });
+    }
+
     // Spark collection event
     this.events.on('spark-collected', (data: { value: number }) => {
       this.sparksCollected += data.value;
@@ -294,7 +324,7 @@ export class GameScene extends Phaser.Scene {
       if (zone.auraColor === AuraColor.YELLOW) {
         const dist = Phaser.Math.Distance.Between(px, py, zone.x, zone.y);
         if (dist < 200) {
-          this.companion.showHint('yellow-zone', zone.x, 'Try yellow!\nIt pulls gems to you!');
+          this.companion.showHint('yellow-zone', zone.x, 'Ooh, yellow!\nIt pulls colors to you!');
           break;
         }
       }
@@ -304,7 +334,7 @@ export class GameScene extends Phaser.Scene {
     for (const ep of this.echoPlatforms) {
       const dist = Phaser.Math.Distance.Between(px, py, ep.rect.x, ep.rect.y);
       if (dist < 200) {
-        this.companion.showHint('echo-platform', ep.rect.x, 'Match the color\nto make it solid!');
+        this.companion.showHint('echo-platform', ep.rect.x, 'Look! Match your\naura to unlock it!');
         break;
       }
     }
@@ -333,17 +363,34 @@ export class GameScene extends Phaser.Scene {
         const sfx = this.add.sprite(enemy.x, enemy.y, 'sfx-impact');
         sfx.setScale(0.8);
         sfx.setBlendMode(Phaser.BlendModes.ADD);
+        // Tint with player's aura color (stolen light released)
+        const auraHex = this.auraSystem.getHex();
+        if (auraHex) sfx.setTint(auraHex);
         sfx.play('sfx-impact');
         sfx.once(Phaser.Animations.Events.ANIMATION_COMPLETE, () => sfx.destroy());
       }
     } else {
       this.lastDeathCause = 'enemy';
-      this.player.die();
+      this.player.hurtByEnemy();
     }
   }
 
   private respawnPlayer(): void {
-    // Fade to white overlay (Lea: gentle, not black)
+    // Revive cushion: companion catch on pit deaths only
+    const safePos = this.lastDeathCause === 'pit' ? this.companion?.getSafePosition() : null;
+    const respawnPos = safePos ?? this.spawnPoint;
+
+    if (safePos) {
+      // Cinematic catch sequence (~1s)
+      this.respawnWithCatch(respawnPos);
+    } else {
+      // Standard respawn at spawn point
+      this.respawnImmediate(respawnPos);
+    }
+  }
+
+  private respawnImmediate(pos: { x: number; y: number }): void {
+    // Gentle white flash
     const flash = this.add.rectangle(
       this.cameras.main.scrollX + GAME_WIDTH / 2,
       GAME_HEIGHT / 2,
@@ -360,14 +407,55 @@ export class GameScene extends Phaser.Scene {
       onComplete: () => flash.destroy(),
     });
 
-    // Revive cushion: respawn at companion only on pit deaths
-    const safePos = this.lastDeathCause === 'pit' ? this.companion?.getSafePosition() : null;
-    const respawnPos = safePos ?? this.spawnPoint;
-    this.player.setPosition(respawnPos.x, respawnPos.y);
+    this.finishRespawn(pos);
+  }
 
-    if (safePos) {
+  private respawnWithCatch(pos: { x: number; y: number }): void {
+    // 1. Companion alert — show hurt/alert frame
+    this.companion.playAlert();
+
+    // 2. Companion glow expands into a shield (300ms)
+    this.companion.expandGlow();
+
+    // 3. After 300ms: player fades in at companion position
+    this.time.delayedCall(300, () => {
+      this.player.setPosition(pos.x, pos.y);
+      this.player.setAlpha(0);
+      this.player.isDying = false;
+      this.auraSystem.clear();
+      const body = this.player.body as Phaser.Physics.Arcade.Body;
+      body.enable = true;
+      body.setVelocity(0, 0);
+
+      // Player materializes inside the glow
+      this.tweens.add({
+        targets: this.player,
+        alpha: { from: 0, to: 1 },
+        duration: 400,
+        ease: 'Power2',
+      });
+    });
+
+    // 4. After 700ms: glow contracts, companion shows "Gotcha!" bubble
+    this.time.delayedCall(700, () => {
       this.companion.playCatch();
-    }
+    });
+
+    // 5. After 1s: resume with invulnerability
+    this.time.delayedCall(1000, () => {
+      // Brief invulnerability flash
+      this.tweens.add({
+        targets: this.player,
+        alpha: { from: 0.3, to: 1 },
+        duration: 150,
+        repeat: 4,
+        yoyo: true,
+      });
+    });
+  }
+
+  private finishRespawn(pos: { x: number; y: number }): void {
+    this.player.setPosition(pos.x, pos.y);
     this.player.setAlpha(1);
     this.player.isDying = false;
     this.auraSystem.clear();
