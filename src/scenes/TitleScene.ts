@@ -51,11 +51,38 @@ export class TitleScene extends Phaser.Scene {
       ease: 'Sine.easeInOut',
     });
 
-    // Subtitle
-    this.add.text(GAME_WIDTH / 2, GAME_HEIGHT * 0.37, 'Soul vs. Machine', {
+    // Rotating story text
+    const storyLines = [
+      'Soul vs. Machine',
+      'Luminos has lost its color...',
+      'Two kids still glow.',
+    ];
+    const subtitle = this.add.text(GAME_WIDTH / 2, GAME_HEIGHT * 0.37, storyLines[0], {
       fontSize: '14px',
       color: '#4dc8ff',
     }).setOrigin(0.5).setAlpha(0.6);
+
+    let lineIndex = 0;
+    this.time.addEvent({
+      delay: 4000,
+      loop: true,
+      callback: () => {
+        lineIndex = (lineIndex + 1) % storyLines.length;
+        this.tweens.add({
+          targets: subtitle,
+          alpha: 0,
+          duration: 300,
+          onComplete: () => {
+            subtitle.setText(storyLines[lineIndex]);
+            this.tweens.add({
+              targets: subtitle,
+              alpha: 0.6,
+              duration: 300,
+            });
+          },
+        });
+      },
+    });
 
     // Characters at bottom
     if (this.textures.exists('player')) {

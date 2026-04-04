@@ -40,7 +40,7 @@ export class CharacterSelectScene extends Phaser.Scene {
       fontStyle: 'bold',
     }).setOrigin(0.5);
 
-    this.add.text(GAME_WIDTH / 2, 66, 'The other will be your sidekick!', {
+    this.add.text(GAME_WIDTH / 2, 66, 'Choose who leads. The other has your back.', {
       fontSize: '12px',
       color: '#4dc8ff',
     }).setOrigin(0.5).setAlpha(0.6);
