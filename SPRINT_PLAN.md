@@ -46,11 +46,24 @@
 - All 3 levels redesigned with terrain variety
 - GitHub Pages deployment + CI/CD
 
+### Sprint 7: Audio + Stability (Completed)
+- SoundManager singleton (Web Audio API wrapper with no-audio guard)
+- Background music loop (`bgm-main`) playing on title and in gameplay
+- 9 core SFX: absorb, gem pickup, stomp, jump, land, aura switch, level complete, pit fall, UI tap
+- Settings music/sfx toggles wired to real-time audio control
+- Web Audio autoplay unlock on first user gesture
+
+### Sprint 8: Survivability + Onboarding (Completed)
+- Sidekick revive cushion — pit death respawns player at companion position when companion is grounded
+- Cinematic catch sequence — alert frame → glow shield expand → player fade-in → shield contract → "Gotcha!" bubble + brief invulnerability
+- Sidekick hint system — companion hops toward target and shows speech bubble on first encounter with echo platforms and yellow zone (once per level, auto-dismisses after 3.5s)
+- 2-hit health system — enemy contact strips aura with shatter VFX + 0.8s invulnerability; bare contact causes death
+
 ---
 
 ## Upcoming Sprints
 
-See [SPRINT_PROPOSALS.md](SPRINT_PROPOSALS.md) for the team's proposed scope for Sprints 7-9.
+See [SPRINT_PROPOSALS.md](SPRINT_PROPOSALS.md) for the team's proposed scope for Sprint 9.
 
 ---
 

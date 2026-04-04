@@ -27,10 +27,13 @@ Stand near an energy node and press Action to absorb its color. Each color grant
 - **Full-height energy wall gates** — force fields requiring a specific aura to pass
 - **Color Echo Platforms** — platforms that only exist when you hold the matching aura
 - **Collectible aura sparks** — color-coded gems with hidden white sparks for mastery
-- **Sidekick companion** — the unchosen character follows you and cheers on pickups
+- **Sidekick companion** — the unchosen character follows you, cheers on pickups, gives contextual hints, and catches you on pit deaths
+- **Cinematic revive catch** — falling into a pit near a grounded companion triggers a 1-second visual catch sequence instead of an instant respawn
+- **2-hit health system** — enemy contact while holding an aura strips the aura first (with brief invulnerability); contact without an aura is fatal
 - **Trophy system** — empty/half/full/sparkling per level
 - **Character selection** — choose between Kai and Nova
 - **Profile system** — 3 save slots with persistent progress
+- **Audio** — background music loop, 9 SFX (jump, land, absorb, gem pickup, stomp, aura switch, level complete, pit fall, UI tap), with in-game music/SFX toggles
 - **Touch controls** — raw DOM touch events with multi-touch tracking (96px targets)
 - **Keyboard support** — WASD/Arrows + Space + E
 - **Game feel** — screen shake, landing squash/stretch, parallax backgrounds, SFX animations
@@ -83,7 +86,7 @@ src/
   config.ts                # Game constants, colors, physics
   scenes/                  # 10 Phaser scenes (title, menus, gameplay, UI)
   entities/                # Player, Enemy, NPC, Collectible, Companion
-  systems/                 # AuraSystem, ColorZone, AuraGate, SaveManager
+  systems/                 # AuraSystem, ColorZone, AuraGate, SaveManager, SoundManager
   data/                    # LevelSchema, LevelLoader, LevelValidator,
                            #   BackgroundBuilder, AssetManifest, LevelManifest
   ui/                      # TouchControls (raw DOM), UIHelper
