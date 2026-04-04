@@ -61,9 +61,9 @@ export class BootScene extends Phaser.Scene {
       });
     }
 
-    // Audio assets (Kenney CC0)
+    // Audio assets (Kenney CC0) — OGG preferred, WAV fallback for Safari/iOS
     for (const audio of AUDIO_ASSETS) {
-      this.load.audio(audio.key, audio.path);
+      this.load.audio(audio.key, audio.paths);
     }
   }
 

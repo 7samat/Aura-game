@@ -61,7 +61,10 @@ export class GameScene extends Phaser.Scene {
     // Forward aura events to game-level for UIScene
     this.events.on(AuraSystem.AURA_CHANGED, (state: any) => {
       this.game.events.emit(AuraSystem.AURA_CHANGED, state);
-      SoundManager.getInstance().playSFX('sfx-aura-switch');
+      // Only play switch sound on actual color gain, not on clear/null
+      if (state?.color && state.color !== 'none') {
+        SoundManager.getInstance().playSFX('sfx-aura-switch');
+      }
     });
 
     // Load level from data

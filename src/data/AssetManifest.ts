@@ -179,22 +179,22 @@ export const SFX_SHEETS: SfxSheetDef[] = [
 
 export interface AudioDef {
   key: string;
-  path: string;
+  paths: string[];   // OGG first (smaller), WAV fallback (Safari/iOS)
 }
 
 export const AUDIO_ASSETS: AudioDef[] = [
   // SFX
-  { key: 'sfx-jump',           path: 'assets/audio/jump.ogg' },
-  { key: 'sfx-gem',            path: 'assets/audio/gem.ogg' },
-  { key: 'sfx-stomp',          path: 'assets/audio/stomp.ogg' },
-  { key: 'sfx-land',           path: 'assets/audio/land.ogg' },
-  { key: 'sfx-absorb',         path: 'assets/audio/absorb.ogg' },
-  { key: 'sfx-aura-switch',    path: 'assets/audio/aura-switch.ogg' },
-  { key: 'sfx-level-complete', path: 'assets/audio/level-complete.ogg' },
-  { key: 'sfx-ui-tap',         path: 'assets/audio/ui-tap.ogg' },
-  { key: 'sfx-pit-fall',       path: 'assets/audio/pit-fall.ogg' },
+  { key: 'sfx-jump',           paths: ['assets/audio/jump.ogg',           'assets/audio/jump.wav'] },
+  { key: 'sfx-gem',            paths: ['assets/audio/gem.ogg',            'assets/audio/gem.wav'] },
+  { key: 'sfx-stomp',          paths: ['assets/audio/stomp.ogg',          'assets/audio/stomp.wav'] },
+  { key: 'sfx-land',           paths: ['assets/audio/land.ogg',           'assets/audio/land.wav'] },
+  { key: 'sfx-absorb',         paths: ['assets/audio/absorb.ogg',         'assets/audio/absorb.wav'] },
+  { key: 'sfx-aura-switch',    paths: ['assets/audio/aura-switch.ogg',    'assets/audio/aura-switch.wav'] },
+  { key: 'sfx-level-complete', paths: ['assets/audio/level-complete.ogg', 'assets/audio/level-complete.wav'] },
+  { key: 'sfx-ui-tap',         paths: ['assets/audio/ui-tap.ogg',         'assets/audio/ui-tap.wav'] },
+  { key: 'sfx-pit-fall',       paths: ['assets/audio/pit-fall.ogg',       'assets/audio/pit-fall.wav'] },
   // BGM
-  { key: 'bgm-main',           path: 'assets/audio/bgm-main.ogg' },
+  { key: 'bgm-main',           paths: ['assets/audio/bgm-main.ogg',      'assets/audio/bgm-main.wav'] },
 ];
 
 // ── Animations ───────────────────────────────────────────────
