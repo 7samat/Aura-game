@@ -218,26 +218,29 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
       this.auraSystem.clear();
       SoundManager.getInstance().playSFX('sfx-pit-fall'); // aura break sound (reuse descending tone)
       this.playAuraShatter(hex);
-      this.setInvulnerable(0.8);
+      this.setInvulnerable(800);
     } else {
       // No aura: death
       this.die();
     }
   }
 
-  private setInvulnerable(duration: number): void {
+  setInvulnerable(durationMs: number): void {
     this.isInvulnerable = true;
-    // Visual feedback: rapid flash
-    this.scene.tweens.add({
+
+    // Visual feedback: rapid flash while invulnerable
+    const flashTween = this.scene.tweens.add({
       targets: this,
       alpha: { from: 0.3, to: 1 },
       duration: 100,
-      repeat: Math.floor(duration / 0.2),
+      repeat: -1,
       yoyo: true,
-      onComplete: () => {
-        this.setAlpha(1);
-        this.isInvulnerable = false;
-      },
+    });
+
+    this.scene.time.delayedCall(durationMs, () => {
+      flashTween.stop();
+      this.setAlpha(1);
+      this.isInvulnerable = false;
     });
   }
 

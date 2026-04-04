@@ -216,13 +216,14 @@ export class Companion extends Phaser.Physics.Arcade.Sprite {
       ease: 'Power2',
     });
 
-    // Play cheer animation
+    // Play cheer animation when available
     if (this.hasAnimations) {
       this.play(`${this.spriteKey}-cheer`);
-      this.scene.time.delayedCall(800, () => {
-        this.companionState = 'following';
-      });
     }
+
+    this.scene.time.delayedCall(800, () => {
+      this.companionState = 'following';
+    });
 
     // Show narrative catch bubble
     this.showBubble('Gotcha!');

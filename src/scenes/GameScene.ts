@@ -365,7 +365,7 @@ export class GameScene extends Phaser.Scene {
         sfx.setBlendMode(Phaser.BlendModes.ADD);
         // Tint with player's aura color (stolen light released)
         const auraHex = this.auraSystem.getHex();
-        if (auraHex) sfx.setTint(auraHex);
+        if (auraHex != null) sfx.setTint(auraHex);
         sfx.play('sfx-impact');
         sfx.once(Phaser.Animations.Events.ANIMATION_COMPLETE, () => sfx.destroy());
       }
@@ -443,14 +443,7 @@ export class GameScene extends Phaser.Scene {
 
     // 5. After 1s: resume with invulnerability
     this.time.delayedCall(1000, () => {
-      // Brief invulnerability flash
-      this.tweens.add({
-        targets: this.player,
-        alpha: { from: 0.3, to: 1 },
-        duration: 150,
-        repeat: 4,
-        yoyo: true,
-      });
+      this.player.setInvulnerable(800);
     });
   }
 
@@ -463,14 +456,8 @@ export class GameScene extends Phaser.Scene {
     body.enable = true;
     body.setVelocity(0, 0);
 
-    // Brief invulnerability flash
-    this.tweens.add({
-      targets: this.player,
-      alpha: { from: 0.3, to: 1 },
-      duration: 150,
-      repeat: 4,
-      yoyo: true,
-    });
+    // Brief invulnerability after respawn
+    this.player.setInvulnerable(800);
   }
 
   private levelCompleted(): void {
